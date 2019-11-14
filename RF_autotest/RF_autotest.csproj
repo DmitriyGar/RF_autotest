@@ -60,15 +60,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Clients\BaseClient.cs" />
+    <Compile Include="Clients\ProjectHelper.cs" />
+    <Compile Include="Clients\RequestBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Selenium.cs" />
+    <Compile Include="Settings\Settings.cs" />
+    <Compile Include="Tests\SmokeTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Config\CancelCalculation.json" />
+    <None Include="Config\GenerateReportSBProject.json" />
+    <None Include="Config\GenerateReportPaymentProject.json" />
+    <None Include="Config\Recalculate.json" />
+    <None Include="Config\Calculate.json" />
+    <None Include="Config\CreateProject.json" />
+    <None Include="Config\SendToManager.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Models\" />
-    <Folder Include="Settings\" />
-    <Folder Include="Tests\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
