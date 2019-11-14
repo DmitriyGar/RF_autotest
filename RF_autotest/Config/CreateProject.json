@@ -1,0 +1,17 @@
+{
+  "project_type": "sb_rebate",
+  "project_name": "Project1_test",
+  "project_description": "description",
+  "due_date": "2019-11-14",
+  "is_assign": false,
+  "price_group_uuid_list": [ "049b876a-eff4-4a4f-8b56-37c4ce5dc6b7" ],
+  "program_uuid_list": [],
+  "arrangement_uuid_list": [ "4e549b3f-fbcb-490c-8dde-89aa2c6d3edf" ],
+  "arrangement_uuid": "4e549b3f-fbcb-490c-8dde-89aa2c6d3edf",
+  "programs": {
+    "price_group_uuid_list": [ "049b876a-eff4-4a4f-8b56-37c4ce5dc6b7" ],
+    "program_uuid_list": []
+  },
+  "project_date_start": "2004-01-01",
+  "project_date_end": "2004-02-29"
+}

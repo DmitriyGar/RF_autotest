@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RF_autotest.Clients
 {
-    class BaseClient
+    public class BaseClient
     {
         private String _mainResource=""; //todo
         private RestClient _client;
@@ -17,7 +17,7 @@ namespace RF_autotest.Clients
             _client = new RestClient(_mainResource);
         }
 
-        IRestResponse SendRequest(RestRequest request)
+        protected IRestResponse SendRequest(RestRequest request)
         {
             var response =_client.Execute(request);
             return response;
