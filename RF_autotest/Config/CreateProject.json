@@ -1,8 +1,8 @@
 {
   "project_type": "sb_rebate",
-  "project_name": "Project1_test",
-  "project_description": "description",
-  "due_date": "2019-11-14",
+  "project_name": "SB_Project_777",
+  "project_description": "description_777",
+  "due_date": "2021-01-01",
   "is_assign": false,
   "price_group_uuid_list": [ "049b876a-eff4-4a4f-8b56-37c4ce5dc6b7" ],
   "program_uuid_list": [],
