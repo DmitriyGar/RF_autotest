@@ -1,7 +1,10 @@
 ﻿using RestSharp;
+using RF_autotest.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,39 +14,55 @@ namespace RF_autotest.Clients
     {
         public RequestBuilder()
         {
-
+           
         }
-
-        public IRestResponse GetRequest(string session_id)
+        public IRestResponse GetRequest(string resourse,  [Optional] Dictionary<string, string> _headers)
         {
             var request = new RestRequest();
             request.Method = Method.GET;
-            request.AddHeader("Authorization", "Session "+ session_id);
-            request.AddHeader("Content-Type", "application/json");
-           
-            var response = SendRequest(request );
-            return response;
+            request.Resource = resourse;
+            request.RequestFormat = DataFormat.Json;
+
+            var response = SendRequest(request, _headers);
+
+            return Wait(response);
         }
 
-        public IRestResponse PostRequest(string session_id,string body)
+        public IRestResponse PostRequest(string resourse, string body, Dictionary<string, string> _headers)
         {
             var request = new RestRequest();
+            request.Resource = resourse;
             request.Method = Method.POST;
-            request.AddHeader("Authorization", "Session " + session_id);
-            request.AddHeader("Content-Type", "application/json");
+            request.RequestFormat = DataFormat.Json;
             request.AddJsonBody(body);
-            var response = SendRequest(request);
-            return response;
+            var response = SendRequest(request, _headers);
+            return Wait(response);
         }
-        IRestResponse PutRequest(string session_id, string body)
+
+        public IRestResponse PutRequest(string resourse, string body, Dictionary<string, string> _headers)
         {
             var request = new RestRequest();
             request.Method = Method.PUT;
-            request.AddHeader("Authorization", "Session " + session_id);
-            request.AddHeader("Content-Type", "application/json");
+            request.Resource = resourse;
             request.AddJsonBody(body);
-            var response = SendRequest(request);
-            return response;
+            var response = SendRequest(request, _headers);
+            return Wait(response);
         }
+
+        public IRestResponse DeleteRequest(string resourse, [Optional] Dictionary<string, string> _headers)
+        {
+            var request = new RestRequest();
+            request.Method = Method.DELETE;
+            request.Resource = resourse;
+            var response = SendRequest(request, _headers);
+            return Wait(response);
+        }
+        
     }
 }
+
+
+
+
+
+

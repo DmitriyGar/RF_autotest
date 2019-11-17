@@ -1,0 +1,904 @@
+{
+  "id": "0fcd96ea-f5e0-42af-b14d-ee4b36069704",
+  "arrangement_uuid": "437cf34e-39b4-4557-8ad8-ac1788295690",
+  "arrangement_uuid_list": [ "437cf34e-39b4-4557-8ad8-ac1788295690" ],
+  "arrangement_name": "Contract_report_SBT2",
+  "client_short_name": "umbrella",
+  "client_name": "Umbrella Corporation",
+  "project_type": "sb_rebate",
+  "parent_project_type": null,
+  "contract_bu_id": "e1d4c954-0e9b-40bb-bb27-77bc4a31e9b6",
+  "contract_bu_name": "BU_1_T2",
+  "programs": {
+    "program_uuid_list": [],
+    "price_group_uuid_list": [ "92f53655-efdf-4a49-84ce-27d84f482df4" ]
+  },
+  "data_sources": [
+    {
+      "source": "direct",
+      "payable": true
+    },
+    {
+      "source": "indirect",
+      "payable": true
+    }
+  ],
+  "due_date": "2019-11-20",
+  "calculation_frequency_unit": "months",
+  "calculation_frequency_value": 1,
+  "calendar_offset_uuid": null,
+  "duration": 1,
+  "project_date_start": "2019-03-01",
+  "project_date_end": "2019-03-31",
+  "calculation_date_start": "2019-03-01",
+  "workflow_step": "analyst_review",
+  "workflow_substep": [ "pending_calculation" ],
+  "current_subviews": [
+    {
+      "type": "summary",
+      "title": "Summary",
+      "parameters": { "additional_fields": [ "total_amount", "total_payment" ] },
+      "is_editable": true,
+      "ui_component_url": "\/projects\/{id}\/summary",
+      "ui_component_name": "summaryView"
+    },
+    {
+      "type": "submitted-values",
+      "title": "Submitted values",
+      "parameters": { "project_price_groups_url": "\/rfprojects\/v1\/projects\/{project_id}\/active-price-groups-and-programs-uuids" },
+      "is_editable": true,
+      "ui_component_url": "\/projects\/{id}\/submitted-values",
+      "ui_component_name": "submittedValuesView"
+    },
+    {
+      "type": "calculations",
+      "title": "Calculations",
+      "parameters": {
+        "levels": [
+          {
+            "level": "summary",
+            "options": [
+              {
+                "title": "By BU",
+                "select": [
+                  {
+                    "field": "sys_retailer_bu_name",
+                    "label": "sys_retailer_bu_name",
+                    "title": "Retailer Ship To Name",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "sys_retailer_bu_master_id",
+                    "label": "sys_retailer_bu_master_id",
+                    "title": "Retailer Ship To Master ID",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "cal_total_amt",
+                    "label": "cal_total_amt",
+                    "title": "Calculated Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "over_total_amt",
+                    "label": "over_total_amt",
+                    "title": "Override Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "global_payable_amt",
+                    "label": "global_payable_amt",
+                    "title": "Payable Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "sys_retailer_bu_id",
+                    "label": "sys_retailer_bu_id",
+                    "title": "Transaction BU UUID",
+                    "function": null,
+                    "data_type": "string",
+                    "show_by_default": false
+                  }
+                ],
+                "data_url": "\/methodologyoutputs\/v1\/rebates\/{aggregation_uuid}?sort=sys_retailer_bu_name+asc",
+                "group_by": [ "sys_retailer_bu_id", "sys_retailer_bu_master_id", "sys_retailer_bu_name" ],
+                "aggregate_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/global\/transactions\/aggregate",
+                "is_aggregated": true
+              },
+              {
+                "title": "By Product",
+                "select": [
+                  {
+                    "field": "final_item_name",
+                    "label": "final_item_name",
+                    "title": "Transaction Product Name",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "cal_total_amt",
+                    "label": "cal_total_amt",
+                    "title": "Calculated Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "over_total_amt",
+                    "label": "over_total_amt",
+                    "title": "Override Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "global_payable_amt",
+                    "label": "global_payable_amt",
+                    "title": "Payable Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "sys_product_id",
+                    "label": "sys_product_id",
+                    "title": "Transaction Product UUID",
+                    "function": null,
+                    "data_type": "string",
+                    "show_by_default": false
+                  }
+                ],
+                "data_url": "\/methodologyoutputs\/v1\/rebates\/{aggregation_uuid}?sort=final_item_name+asc",
+                "group_by": [ "sys_product_id", "final_item_name" ],
+                "aggregate_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/global\/transactions\/aggregate",
+                "is_aggregated": true
+              },
+              {
+                "title": "By BU and Product",
+                "select": [
+                  {
+                    "field": "sys_retailer_bu_name",
+                    "label": "sys_retailer_bu_name",
+                    "title": "Retailer Ship To Name",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "sys_retailer_bu_master_id",
+                    "label": "sys_retailer_bu_master_id",
+                    "title": "Retailer Ship To Master ID",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "final_item_name",
+                    "label": "final_item_name",
+                    "title": "Transaction Product Name",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "cal_total_amt",
+                    "label": "cal_total_amt",
+                    "title": "Calculated Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "over_total_amt",
+                    "label": "over_total_amt",
+                    "title": "Override Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "global_payable_amt",
+                    "label": "global_payable_amt",
+                    "title": "Payable Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "sys_retailer_bu_id",
+                    "label": "sys_retailer_bu_id",
+                    "title": "Transaction BU UUID",
+                    "function": null,
+                    "data_type": "string",
+                    "show_by_default": false
+                  },
+                  {
+                    "field": "sys_product_id",
+                    "label": "sys_product_id",
+                    "title": "Transaction Product UUID",
+                    "function": null,
+                    "data_type": "string",
+                    "show_by_default": false
+                  }
+                ],
+                "data_url": "\/methodologyoutputs\/v1\/rebates\/{aggregation_uuid}?sort=sys_retailer_bu_name+asc&sort=final_item_name+asc",
+                "group_by": [ "sys_retailer_bu_id", "sys_retailer_bu_master_id", "sys_retailer_bu_name", "sys_product_id", "final_item_name" ],
+                "aggregate_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/global\/transactions\/aggregate",
+                "is_aggregated": true
+              }
+            ],
+            "drill_down_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/global\/transactions?filter_by_column_scope={output_scope_id_list}"
+          },
+          {
+            "level": "program",
+            "options": [
+              {
+                "title": "By BU",
+                "filter": [
+                  {
+                    "field": "trans_usage_type",
+                    "value": "eval",
+                    "operation": "ne"
+                  }
+                ],
+                "select": [
+                  {
+                    "field": "sys_retailer_bu_name",
+                    "label": "sys_retailer_bu_name",
+                    "title": "Retailer Ship To Name",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "sys_retailer_bu_master_id",
+                    "label": "sys_retailer_bu_master_id",
+                    "title": "Retailer Ship To Master ID",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "cal_total_rebate_amt",
+                    "label": "cal_total_rebate_amt",
+                    "title": "Calculated Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "over_total_rebate_amt",
+                    "label": "over_total_rebate_amt",
+                    "title": "Override Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "payable_amt",
+                    "label": "payable_amt",
+                    "title": "Payable Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "sys_retailer_bu_id",
+                    "label": "sys_retailer_bu_id",
+                    "title": "Transaction BU UUID",
+                    "function": null,
+                    "data_type": "string",
+                    "show_by_default": false
+                  }
+                ],
+                "data_url": "\/methodologyoutputs\/v1\/rebates\/{aggregation_uuid}?sort=sys_retailer_bu_name+asc",
+                "group_by": [ "sys_retailer_bu_id", "sys_retailer_bu_master_id", "sys_retailer_bu_name" ],
+                "aggregate_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/global\/transactions\/aggregate?filter_by_column_scope={output_scope_id}",
+                "is_aggregated": true,
+                "default_for_partial_setup": true
+              },
+              {
+                "title": "By Product",
+                "filter": [
+                  {
+                    "field": "trans_usage_type",
+                    "value": "eval",
+                    "operation": "ne"
+                  }
+                ],
+                "select": [
+                  {
+                    "field": "final_item_name",
+                    "label": "final_item_name",
+                    "title": "Transaction Product Name",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "cal_total_rebate_amt",
+                    "label": "cal_total_rebate_amt",
+                    "title": "Calculated Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "over_total_rebate_amt",
+                    "label": "over_total_rebate_amt",
+                    "title": "Override Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "payable_amt",
+                    "label": "payable_amt",
+                    "title": "Payable Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "sys_product_id",
+                    "label": "sys_product_id",
+                    "title": "Transaction Product UUID",
+                    "function": null,
+                    "data_type": "string",
+                    "show_by_default": false
+                  }
+                ],
+                "data_url": "\/methodologyoutputs\/v1\/rebates\/{aggregation_uuid}?sort=final_item_name+asc",
+                "group_by": [ "sys_product_id", "final_item_name" ],
+                "aggregate_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/global\/transactions\/aggregate?filter_by_column_scope={output_scope_id}",
+                "is_aggregated": true
+              },
+              {
+                "title": "By BU and Product",
+                "filter": [
+                  {
+                    "field": "trans_usage_type",
+                    "value": "eval",
+                    "operation": "ne"
+                  }
+                ],
+                "select": [
+                  {
+                    "field": "sys_retailer_bu_name",
+                    "label": "sys_retailer_bu_name",
+                    "title": "Retailer Ship To Name",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "sys_retailer_bu_master_id",
+                    "label": "sys_retailer_bu_master_id",
+                    "title": "Retailer Ship To Master ID",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "final_item_name",
+                    "label": "final_item_name",
+                    "title": "Transaction Product Name",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "cal_total_rebate_amt",
+                    "label": "cal_total_rebate_amt",
+                    "title": "Calculated Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "over_total_rebate_amt",
+                    "label": "over_total_rebate_amt",
+                    "title": "Override Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "payable_amt",
+                    "label": "payable_amt",
+                    "title": "Payable Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "sys_retailer_bu_id",
+                    "label": "sys_retailer_bu_id",
+                    "title": "Transaction BU UUID",
+                    "function": null,
+                    "data_type": "string",
+                    "show_by_default": false
+                  },
+                  {
+                    "field": "sys_product_id",
+                    "label": "sys_product_id",
+                    "title": "Transaction Product UUID",
+                    "function": null,
+                    "data_type": "string",
+                    "show_by_default": false
+                  }
+                ],
+                "data_url": "\/methodologyoutputs\/v1\/rebates\/{aggregation_uuid}?sort=sys_retailer_bu_name+asc",
+                "group_by": [ "sys_retailer_bu_id", "sys_retailer_bu_master_id", "sys_retailer_bu_name", "sys_product_id", "final_item_name" ],
+                "aggregate_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/global\/transactions\/aggregate?filter_by_column_scope={output_scope_id}",
+                "is_aggregated": true
+              }
+            ],
+            "drill_down_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/global\/transactions?filter_by_column_scope={output_scope_id_list}"
+          },
+          {
+            "level": "price_group",
+            "options": [
+              {
+                "title": "Achieved",
+                "data_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/{output_scope_id}\/evaluation_summary?filter_by_column_scope={output_scope_id}&sort=evaluation_bu_name+asc&sort=calculation_product_name+asc&sort=calculation_product_ndc+asc",
+                "columns_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/{output_scope_id}\/evaluation_summary\/columns?filter_by_column_scope={output_scope_id}",
+                "drill_down_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/global\/transactions?filter_by_column_scope={output_scope_id}&filter=evaluation_bu_uuid eq {evaluation_bu_uuid}&filter=sys_product_id eq {calculation_product_uuid}",
+                "details_data_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/{aggregation_uuid}\/tier_values_in_the_middle_of_the_period?filter_by_column_scope={output_scope_id}&filter=evaluation_bu_uuid eq {evaluation_bu_uuid}&filter=sys_product_id eq {calculation_product_uuid}&sort=over_tier_earliest_date+asc&sort=earliest_date+asc&sort=base_earliest_date+asc",
+                "adjustment_options": {
+                  "bu_uuid": "evaluation_bu_uuid",
+                  "product_uuid": "calculation_product_uuid",
+                  "tier_override_column": "over_tier_name",
+                  "amount_override_column": "over_total_rebate_amt"
+                },
+                "details_columns_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/{aggregation_uuid}\/tier_values_in_the_middle_of_the_period\/columns?filter_by_column_scope={output_scope_id}"
+              },
+              {
+                "title": "By BU",
+                "filter": [
+                  {
+                    "field": "trans_usage_type",
+                    "value": "eval",
+                    "operation": "ne"
+                  }
+                ],
+                "select": [
+                  {
+                    "field": "evaluation_bu_name",
+                    "label": "evaluation_bu_name",
+                    "title": "Evaluation BU Name",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "source_bu_master_id",
+                    "label": "source_bu_master_id",
+                    "title": "Evaluation BU Master ID",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "cal_base_rebate_amt",
+                    "label": "cal_base_rebate_amt",
+                    "title": "Calculated Base Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "over_base_rebate_amt",
+                    "label": "over_base_rebate_amt",
+                    "title": "Override Base Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "cal_total_rebate_amt",
+                    "label": "cal_total_rebate_amt",
+                    "title": "Calculated Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "over_total_rebate_amt",
+                    "label": "over_total_rebate_amt",
+                    "title": "Override Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "payable_amt",
+                    "label": "payable_amt",
+                    "title": "Payable Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "evaluation_bu_uuid",
+                    "label": "evaluation_bu_uuid",
+                    "title": "Evaluation BU UUID",
+                    "function": null,
+                    "data_type": "string",
+                    "show_by_default": false
+                  }
+                ],
+                "data_url": "\/methodologyoutputs\/v1\/rebates\/{aggregation_uuid}?sort=evaluation_bu_name+asc",
+                "group_by": [ "source_bu_master_id", "evaluation_bu_uuid", "evaluation_bu_name" ],
+                "aggregate_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/global\/transactions\/aggregate?filter_by_column_scope={output_scope_id}",
+                "is_aggregated": true,
+                "drill_down_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/global\/transactions?filter_by_column_scope={output_scope_id}&filter=evaluation_bu_uuid eq {evaluation_bu_uuid}",
+                "default_for_partial_setup": true
+              },
+              {
+                "title": "By Product",
+                "filter": [
+                  {
+                    "field": "trans_usage_type",
+                    "value": "eval",
+                    "operation": "ne"
+                  }
+                ],
+                "select": [
+                  {
+                    "field": "product_name",
+                    "label": "product_name",
+                    "title": "Product Name",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "product_ndc",
+                    "label": "product_ndc",
+                    "title": "NDC11",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "cal_base_rebate_amt",
+                    "label": "cal_base_rebate_amt",
+                    "title": "Calculated Base Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "over_base_rebate_amt",
+                    "label": "over_base_rebate_amt",
+                    "title": "Override Base Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "cal_total_rebate_amt",
+                    "label": "cal_total_rebate_amt",
+                    "title": "Calculated Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "over_total_rebate_amt",
+                    "label": "over_total_rebate_amt",
+                    "title": "Override Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "payable_amt",
+                    "label": "payable_amt",
+                    "title": "Payable Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "sys_product_id",
+                    "label": "sys_product_id",
+                    "title": "Product UUID",
+                    "function": null,
+                    "data_type": "string",
+                    "show_by_default": false
+                  }
+                ],
+                "data_url": "\/methodologyoutputs\/v1\/rebates\/{aggregation_uuid}?sort=product_name+asc",
+                "group_by": [ "sys_product_id", "product_ndc", "product_name" ],
+                "aggregate_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/global\/transactions\/aggregate?filter_by_column_scope={output_scope_id}",
+                "is_aggregated": true,
+                "drill_down_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/global\/transactions?filter_by_column_scope={output_scope_id}&filter=sys_product_id eq {sys_product_id}"
+              },
+              {
+                "title": "By BU and Product",
+                "filter": [
+                  {
+                    "field": "trans_usage_type",
+                    "value": "eval",
+                    "operation": "ne"
+                  }
+                ],
+                "select": [
+                  {
+                    "field": "evaluation_bu_name",
+                    "label": "evaluation_bu_name",
+                    "title": "Evaluation BU Name",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "source_bu_master_id",
+                    "label": "source_bu_master_id",
+                    "title": "Evaluation BU Master ID",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "product_name",
+                    "label": "product_name",
+                    "title": "Product Name",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "product_ndc",
+                    "label": "product_ndc",
+                    "title": "NDC11",
+                    "function": null,
+                    "data_type": "string"
+                  },
+                  {
+                    "field": "cal_base_rebate_amt",
+                    "label": "cal_base_rebate_amt",
+                    "title": "Calculated Base Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "over_base_rebate_amt",
+                    "label": "over_base_rebate_amt",
+                    "title": "Override Base Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "cal_total_rebate_amt",
+                    "label": "cal_total_rebate_amt",
+                    "title": "Calculated Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "over_total_rebate_amt",
+                    "label": "over_total_rebate_amt",
+                    "title": "Override Total Rebate Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "payable_amt",
+                    "label": "payable_amt",
+                    "title": "Payable Amount",
+                    "function": "sum",
+                    "data_type": "currency"
+                  },
+                  {
+                    "field": "evaluation_bu_uuid",
+                    "label": "evaluation_bu_uuid",
+                    "title": "Evaluation BU UUID",
+                    "function": null,
+                    "data_type": "string",
+                    "show_by_default": false
+                  },
+                  {
+                    "field": "sys_product_id",
+                    "label": "sys_product_id",
+                    "title": "Product UUID",
+                    "function": null,
+                    "data_type": "string",
+                    "show_by_default": false
+                  }
+                ],
+                "data_url": "\/methodologyoutputs\/v1\/rebates\/{aggregation_uuid}?sort=evaluation_bu_name+asc&sort=product_name+asc",
+                "group_by": [ "product_name", "product_ndc", "sys_product_id", "source_bu_master_id", "evaluation_bu_name", "evaluation_bu_uuid" ],
+                "aggregate_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/global\/transactions\/aggregate?filter_by_column_scope={output_scope_id}",
+                "is_aggregated": true,
+                "drill_down_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/global\/transactions?filter_by_column_scope={output_scope_id}&filter=sys_product_id eq {sys_product_id}&filter=evaluation_bu_uuid eq {evaluation_bu_uuid}"
+              }
+            ],
+            "drill_down_url": "\/methodologyoutputs\/v1\/rebates\/{context_id_calculation}\/global\/transactions?filter_by_column_scope={output_scope_id}"
+          }
+        ]
+      },
+      "is_editable": true,
+      "ui_component_url": "\/projects\/{id}\/calculations",
+      "ui_component_name": "calculationsView"
+    },
+    {
+      "type": "exclusions",
+      "title": "Exclusions",
+      "parameters": {
+        "data_url": "aggregations\/{aggregation_name}",
+        "show_first_titles": [ "Excluded from Evaluation", "Status Eval", "Excluded from Payment", "Status Paym" ],
+        "optional_parameters": [ "filter" ],
+        "combine_data_sources": [
+          {
+            "sources": [ "direct", "indirect" ],
+            "data_source_group_name": "Client Sales"
+          }
+        ],
+        "comment_popup_metadata": {
+          "fields": [
+            {
+              "field": "created_by",
+              "title": "Excluded by",
+              "data_type": "string"
+            },
+            {
+              "field": "resolution",
+              "title": "Comment",
+              "data_type": "string"
+            },
+            {
+              "field": "created_at",
+              "title": "Exclusion Date",
+              "data_type": "date"
+            },
+            {
+              "field": "is_applied",
+              "title": "Status",
+              "data_type": "string"
+            }
+          ],
+          "column_title_to_data_url_map": [
+            {
+              "data_url": "{project_id}\/ED01\/disputes",
+              "column_title": "Excluded from Evaluation"
+            },
+            {
+              "data_url": "{project_id}\/ED02\/disputes",
+              "column_title": "Excluded from Payment"
+            }
+          ]
+        },
+        "dispute_all_parameters": {
+          "data_source": "aggregations",
+          "transactions_source": "aggregations\/{aggregation_name}"
+        },
+        "data_source_column_backup": { "field": "data_source" },
+        "exclusions_popup_metadata": {
+          "dispute_codes": [
+            {
+              "id": "excludeFromEvaluation",
+              "code": "ED01",
+              "message": "Exclude from Evaluation",
+              "column_name": "error_code"
+            },
+            {
+              "id": "excludeFromPayment",
+              "code": "ED02",
+              "message": "Exclude from Payment",
+              "column_name": "error_code"
+            }
+          ]
+        },
+        "transaction_id_column_backup": { "field": "id" }
+      },
+      "is_editable": false,
+      "ui_component_url": "\/projects\/{id}\/exclusions",
+      "ui_component_name": "exclusionsView"
+    },
+    {
+      "type": "transactions",
+      "title": "Transactions",
+      "is_editable": false,
+      "ui_component_url": "\/projects\/{id}\/transactions",
+      "ui_component_name": "transactionsView"
+    },
+    {
+      "type": "reports",
+      "title": "Reports",
+      "parameters": {
+        "report_types": [
+          {
+            "type": "cover_page_for_all_pay_to_bu",
+            "title": "Cover Page for all Pay to BUs",
+            "group_type": "cover_page",
+            "unique_key": [],
+            "template_name": "sb_rebate_general",
+            "group_type_title": "Cover Page"
+          },
+          {
+            "type": "cover_page_per_each_pay_to_bu",
+            "title": "Cover Page per each Pay to BU",
+            "group_type": "cover_page",
+            "unique_key": [ "pay_to_bu_uuid" ],
+            "template_name": "sb_rebate_general",
+            "group_type_title": "Cover Page"
+          },
+          {
+            "type": "transactional_report",
+            "title": "Transactional Report",
+            "group_type": "transactional",
+            "unique_key": [],
+            "is_required": true,
+            "template_name": "sb_rebate_general",
+            "group_type_title": "Transactional Report"
+          },
+          {
+            "type": "pay_to_bu_details_report",
+            "title": "Pay to BU Details Report",
+            "group_type": "summary",
+            "unique_key": [],
+            "template_name": "sb_rebate_general",
+            "group_type_title": "Summary Report"
+          },
+          {
+            "type": "pay_to_bu",
+            "title": "Summary by Pay to BU",
+            "group_type": "summary",
+            "unique_key": [],
+            "template_name": "sb_rebate_general",
+            "group_type_title": "Summary Report"
+          },
+          {
+            "type": "product",
+            "title": "Summary by Product",
+            "group_type": "summary",
+            "unique_key": [],
+            "template_name": "sb_rebate_general",
+            "group_type_title": "Summary Report"
+          },
+          {
+            "type": "pay_to_bu_and_product",
+            "title": "Summary by Pay to BU and Product",
+            "group_type": "summary",
+            "unique_key": [],
+            "template_name": "sb_rebate_general",
+            "group_type_title": "Summary Report"
+          },
+          {
+            "type": "summary_by_evaluation_bu",
+            "title": "Summary by Evaluation BU",
+            "group_type": "summary",
+            "unique_key": [],
+            "template_name": "sb_rebate_general",
+            "group_type_title": "Summary Report"
+          },
+          {
+            "type": "evaluation_bu_and_product",
+            "title": "Summary by Evaluation BU and Product",
+            "group_type": "summary",
+            "unique_key": [],
+            "template_name": "sb_rebate_general",
+            "group_type_title": "Summary Report"
+          },
+          {
+            "type": "transactional_bu_and_product",
+            "title": "Summary by Retailer Ship to and Product",
+            "group_type": "summary",
+            "unique_key": [],
+            "template_name": "sb_rebate_general",
+            "group_type_title": "Summary Report"
+          }
+        ],
+        "required_reports": [
+          {
+            "match": "one",
+            "struct_item": "summary",
+            "require_type": "group",
+            "struct_title": "Summary"
+          }
+        ]
+      },
+      "is_editable": true,
+      "ui_component_url": "\/projects\/{id}\/reports",
+      "ui_component_name": "reportsView"
+    },
+    {
+      "type": "payments",
+      "title": "Payments",
+      "parameters": { "data_url": "\/rfpayments\/v1\/payments\/{project_id}" },
+      "is_editable": true,
+      "ui_component_url": "\/projects\/{id}\/payments",
+      "ui_component_name": "paymentsView"
+    }
+  ],
+  "errors_status": null,
+  "execution_context_ids": null,
+  "assignee": null,
+  "assignee_first_name": null,
+  "assignee_last_name": null,
+  "owners": null,
+  "additional_attributes": {},
+  "payable_amount": null,
+  "project_counter": null,
+  "created_by": "rf_analyst@cis-cust.lan",
+  "created_at": "2019-11-16T08:16:01.603072",
+  "changed_by": null,
+  "changed_at": null,
+  "approved_at": null,
+  "is_closed": false,
+  "closed_at": null,
+  "predecessor_project_list": null,
+  "successor_project_list": null,
+  "warnings": null,
+  "connect_id": null,
+  "project_name": "Name1",
+  "project_description": "Desc1",
+  "project_type_title": "Sales Based"
+}

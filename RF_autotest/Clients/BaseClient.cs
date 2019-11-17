@@ -1,25 +1,57 @@
 ﻿using RestSharp;
+using RF_autotest.Settings;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace RF_autotest.Clients
 {
     public class BaseClient
     {
-        private String _mainResource=""; //todo
-        private RestClient _client;
+        private string _mainResource= Configuration.UrlQaEnvironment+":"+Configuration.Port8080; //todo
+        private IRestClient _client;
 
         protected BaseClient()
         {
+            
             _client = new RestClient(_mainResource);
+            _client.FollowRedirects = true;
         }
 
-        protected IRestResponse SendRequest(RestRequest request)
+        protected IRestResponse SendRequest(IRestRequest request, [Optional]Dictionary<string, string> headers)
         {
+          
+                if (headers != null)
+                {
+                    foreach (var header in headers)
+                    {
+                        request.AddHeader(header.Key, header.Value);
+                        //Debug.WriteLine($"Request Headers: {header.Key} {header.Value}");
+                    }
+                }
+            
             var response =_client.Execute(request);
+
+            return response;
+        }
+
+        public IRestResponse Wait(IRestResponse response, [Optional]int time_seconds)
+        {
+            
+            int timer = 30000;
+            if (time_seconds == 0)
+                time_seconds = timer;
+            Stopwatch stopTimer = Stopwatch.StartNew();
+            stopTimer.Reset();
+            stopTimer.Start();
+            while (Convert.ToInt16(stopTimer.ElapsedMilliseconds) < time_seconds) {
+               
+                if (response.Content != null) break; 
+            }
+            stopTimer.Stop();
+
             return response;
         }
     }
