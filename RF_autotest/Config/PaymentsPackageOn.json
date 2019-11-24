@@ -1,0 +1,7 @@
+{
+  "service_name": "Rebates and Fees",
+  "is_payment_package_enabled": true,
+  "is_erp_negative_payments_enabled": false,
+  "is_erp_active": false,
+  "direct_transaction_upload": true
+}

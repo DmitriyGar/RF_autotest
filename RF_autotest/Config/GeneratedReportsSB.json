@@ -1,0 +1,32 @@
+[
+  {
+    "id": "3811864d-3d3f-4c16-9b5a-61841805ca53",
+    "project_uuid": "8d54acdf-3338-462d-a8ed-5ce2247c1746",
+    "document_uuid": "dba6da94-0e35-11ea-ab68-0242ac110005",
+    "report_type": "transactional_report",
+    "name": "Multiple BUs - Transactional Report - 2019-11-23 06-11-41 PM.csv",
+    "report_format": "csv",
+    "generation_date": "2019-11-23T18:11:41.688348",
+    "generated_by": "RF Analyst",
+    "generated_by_email": "rf_analyst@cis-cust.lan",
+    "hash": "c45aafe1359d87f65202a9f10e0e2953",
+    "group_type_title": "Transactional Report",
+    "origin_source_uuid": null,
+    "source_type": null
+  },
+  {
+    "id": "355f6bc2-4533-4102-b525-e06f5a7873d3",
+    "project_uuid": "8d54acdf-3338-462d-a8ed-5ce2247c1746",
+    "document_uuid": "edc8b2c8-0e37-11ea-8d0e-0242ac110005",
+    "report_type": "summary_by_evaluation_bu",
+    "name": "Summary Report by Evaluation BU - 2019-11-23 06-26-35 PM.csv",
+    "report_format": "csv",
+    "generation_date": "2019-11-23T18:26:35.428085",
+    "generated_by": "RF Analyst",
+    "generated_by_email": "rf_analyst@cis-cust.lan",
+    "hash": "e89469a41ea4a7e7729e0c3b902406cb",
+    "group_type_title": "Summary Report",
+    "origin_source_uuid": null,
+    "source_type": null
+  }
+]

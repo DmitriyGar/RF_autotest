@@ -1,0 +1,17 @@
+{
+  "project_type": "sb_rebate",
+  "project_name": "SB_Project_777",
+  "project_description": "description_777",
+  "due_date": "2021-01-01",
+  "is_assign": false,
+  "price_group_uuid_list": [ "a78a6a0c-ca43-4746-bd9a-7a60d947a21b" ],
+  "program_uuid_list": [],
+  "arrangement_uuid_list": [ "185c81d2-b4ab-45f7-9cd4-ae33e4de048b" ],
+  "arrangement_uuid": "185c81d2-b4ab-45f7-9cd4-ae33e4de048b",
+  "programs": {
+    "price_group_uuid_list": [ "a78a6a0c-ca43-4746-bd9a-7a60d947a21b" ],
+    "program_uuid_list": []
+  },
+  "project_date_start": "2001-05-01",
+  "project_date_end": "2001-06-30"
+}

@@ -16,22 +16,21 @@ using System.Threading.Tasks;
 
 namespace RF_autotest.Clients
 {
-    class ProjectHelperAnalyst: BaseClient
+    class ProjectHelperManager: BaseClient
         
     {
         private readonly string  _loginToAppResource = "/apigateway/v1/sessions"; //post
         private readonly string _getUnassignedProjectsResource = "/rfprojects/v1/unassigned";
-        private readonly string _createSbProjectResource ="/rfprojects/v1/projects"; //post
         private readonly string _getProjectInfo = @"/rfprojects/v1/projects/{0}";
         private readonly string _assignSbProjectResource = @"/rfworkflow/v1/workflows/{0}/pending_calculation/assign";//put
         private readonly string _unassignSbProjectResource = @"/rfworkflow/v1/workflows/{0}/pending_calculation/unassign";//put
         private readonly string _assignPaymentProjectResource = "/rfworkflow/v1/workflows/{0}/add_payments/assign";//put
         private readonly string _getReportSbProjectResource = "/rfreports/v1/{0}/reports"; //get
         private readonly string _generateReportSbProjectResource = "/rfreports/v1/{0}/reports"; //post
-        private readonly string _calculateSbProjectResource = @"/rfworkflow/v1/workflows/{0}/pending_calculation/complete"; //put
-        private readonly string _SendSBProjectToManagerResource = @"/rfworkflow/v1/workflows/{0}/adjustments/complete";//put
-        private readonly string _SendPaymentProjectToManagerResource = "/rfworkflow/v1/workflows/{0}/add_payments/complete";//put
-        private readonly string _paymentPackageOnResource = @"/clients/v1/services/Rebates%2520and%2520Fees"; //put
+        
+        private readonly string _ApproveSBProjectByManagerResource = @"/rfworkflow/v1/workflows/{0}/adjustments/complete";//put
+        private readonly string _ApprovePaymentProjectByManagerResource = "/rfworkflow/v1/workflows/{0}/add_payments/complete";//put
+        
         
         private string _client="umbrella";
         private Login _credentials;
@@ -40,7 +39,7 @@ namespace RF_autotest.Clients
         private List<ReportsInfo>  _report;
         private string _session_id;
 
-        public ProjectHelperAnalyst([Optional]Dictionary<string, string> headers)
+        public ProjectHelperManager([Optional]Dictionary<string, string> headers)
         {
             _headers = new Dictionary<string, string>(){
                 
@@ -56,7 +55,7 @@ namespace RF_autotest.Clients
 
         public void LoginToApp()
         {
-            _credentials.username = Configuration.LoginRfAnalyst;
+            _credentials.username = Configuration.LoginRfManager;
             _credentials.password = Configuration.Password;
             string json = JsonConvert.SerializeObject(_credentials);          
             var response =_requests.PostRequest(_loginToAppResource,json, _headers).Content;      
@@ -71,15 +70,6 @@ namespace RF_autotest.Clients
         {
             var response = _requests.GetRequest(_getUnassignedProjectsResource, _headers);
             Debug.WriteLine("List of unassigned projects:  " + response.Content + '\n');
-
-        }
-
-        public IRestResponse CreateSBProject()
-        {
-            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/CreateProjectQA.json");
-            var response = _requests.PostRequest(_createSbProjectResource, json, _headers);
-            Debug.WriteLine("Creating response:  " + response.StatusCode + '\n');
-            return response;
 
         }
 
@@ -133,29 +123,6 @@ namespace RF_autotest.Clients
             return response;
         }
 
-        public IRestResponse CalculateSBproject(CreatedProject project)
-        {
-            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/calculate.json");
-            if (!_headers.ContainsKey("X-Project-Type"))
-            _headers.Add("X-Project-Type", project.project_type);
-            var response = _requests.PutRequest(String.Format(_calculateSbProjectResource, project.id), json, _headers);
-            Debug.WriteLine("Start calculating: " + response.IsSuccessful + '\n');
-            return response;
-        }
-        public IRestResponse WaitCalculatingSBproject(CreatedProject project)
-        {
-           
-            while (project.workflow_substep[0] == "calculating"||project.workflow_substep[0] == "pending_calculation")
-            {
-                project = JsonConvert.DeserializeObject<CreatedProject>(GetProjectInfo(project.id).Content);
-               
-            }
-            Debug.WriteLine("Calculation finished. Sub-step: " + project.workflow_substep[0] + '\n');
-            Debug.WriteLine("Total amount: " + project.additional_attributes.total_amount + '\n');
-            var response = GetProjectInfo(project.id);
-            return response;
-        }
-
         public IRestResponse GenerateReportSBproject(CreatedProject project)
         {
             string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/GenerateReportSBProject.json");
@@ -164,7 +131,7 @@ namespace RF_autotest.Clients
             var response= _requests.PostRequest(String.Format(_generateReportSbProjectResource, project.id), json, _headers);
             Debug.WriteLine("Generate report: " + response.IsSuccessful + '\n');
             _waitGenerationReportSBproject(project);
-            response = GetProjectInfo(project.id);
+           // response = GetProjectInfo(project.id);
             return response;
         }
 
@@ -196,37 +163,29 @@ namespace RF_autotest.Clients
             return response;
         }
 
-        public IRestResponse SendProjectToManager(CreatedProject project)
+        public IRestResponse ApproveProjectByManager(CreatedProject project)
         {
             string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/SendToManager.json");
             if (!_headers.ContainsKey("X-Project-Type"))
                 _headers.Add("X-Project-Type", project.project_type);
-            var response = _requests.PutRequest(String.Format(_SendSBProjectToManagerResource, project.id), json, _headers);
+            var response = _requests.PutRequest(String.Format(_ApproveSBProjectByManagerResource, project.id), json, _headers);
             Debug.WriteLine("Send SB project to Manager: " + response.IsSuccessful + '\n');
             return response;
 
         }
-        public void PaymentsPackageOn()
-        {
-            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/PaymentsPackageOn.json");
-            var response =_requests.PutRequest(String.Format(_paymentPackageOnResource), json, _headers).Content;
-            Debug.WriteLine("Payment package on: " + response + '\n');
-           
-        }
-        
-
-        void ReturnProjectByClient()
+        void PaymentsPackageOff()
         {
 
         }
-        void AproveProjectByClient()
+        void RejectProjectByManager()
         {
 
         }
-        void CloseProjectWithProjectDetails()
+        void AproveProjectByManager()
         {
 
         }
+       
 
     }
 }

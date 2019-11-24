@@ -46,12 +46,12 @@ namespace RF_autotest.Clients
             Stopwatch stopTimer = Stopwatch.StartNew();
             stopTimer.Reset();
             stopTimer.Start();
-            while (Convert.ToInt16(stopTimer.ElapsedMilliseconds) < time_seconds) {
+            while (Convert.ToInt32(stopTimer.ElapsedMilliseconds) < time_seconds) {
                
-                if (response.Content != null) break; 
+                if (response.IsSuccessful) break; 
             }
             stopTimer.Stop();
-
+           // Thread.Sleep(2000);
             return response;
         }
     }
