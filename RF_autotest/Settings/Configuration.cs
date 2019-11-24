@@ -9,7 +9,7 @@ namespace RF_autotest.Settings
     public static class Configuration
     {
         public static readonly string UrlQaEnvironment= "http://rf-qa-app1.zkpsl3bk22wuvfspx0uhovklae.bx.internal.cloudapp.net";
-        public static readonly string UrlIntEnvironment = "Int";
+        public static readonly string UrlIntEnvironment = "http://cbd-int-gateway1.zkpsl3bk22wuvfspx0uhovklae.bx.internal.cloudapp.net";
         public static readonly string Port8080 = "8080";
         public static readonly string LoginRfAnalyst = "rf_analyst";
         public static readonly string NameRfAnalyst = "rf_analyst@cis-cust.lan";

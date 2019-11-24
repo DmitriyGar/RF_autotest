@@ -64,6 +64,8 @@ namespace RF_autotest.Models
     }
     public class Additional_Attributes
     {
+        public string total_amount { get; set; }
+        public string total_payment { get; set; }
     }
 
     public class Data_Sources

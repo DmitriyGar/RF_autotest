@@ -64,12 +64,15 @@
   <ItemGroup>
     <Compile Include="Clients\BaseClient.cs" />
     <Compile Include="Clients\ProjectHelperAdmin.cs" />
+    <Compile Include="Clients\ProjectHelperManager.cs" />
     <Compile Include="Clients\ProjectHelperAnalyst.cs" />
     <Compile Include="Clients\RequestBuilder.cs" />
-    <Compile Include="Models\CreatedProject.cs" />
-    <Compile Include="Models\CreateProject.cs" />
+    <Compile Include="Models\PaymentProject\PaymentPackageOff.cs" />
+    <Compile Include="Models\SbProject\CreatedProject.cs" />
+    <Compile Include="Models\SbProject\CreateProject.cs" />
     <Compile Include="Models\Login.cs" />
-    <Compile Include="Models\Programs.cs" />
+    <Compile Include="Models\SbProject\Programs.cs" />
+    <Compile Include="Models\SbProject\ReportsInfo.cs" />
     <Compile Include="Models\SessionIdentification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Selenium.cs" />
@@ -81,6 +84,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Config\CreatedProject.json" />
+    <None Include="Config\CreateProjectINT.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config\GeneratedReportsSB.json" />
     <None Include="Config\GenerateReportSBProject.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -90,13 +97,14 @@
     <None Include="Config\Login.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Config\PaymentsPackageOn.json" />
     <None Include="Config\Recalculate.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Config\Calculate.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Config\CreateProject.json">
+    <None Include="Config\CreateProjectQA.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Config\SendToManager.json">
