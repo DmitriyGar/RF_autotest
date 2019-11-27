@@ -22,15 +22,13 @@ namespace RF_autotest.Clients
         private readonly string  _loginToAppResource = "/apigateway/v1/sessions"; //post
         private readonly string _getUnassignedProjectsResource = "/rfprojects/v1/unassigned";
         private readonly string _getProjectInfo = @"/rfprojects/v1/projects/{0}";
-        private readonly string _assignSbProjectResource = @"/rfworkflow/v1/workflows/{0}/pending_calculation/assign";//put
-        private readonly string _unassignSbProjectResource = @"/rfworkflow/v1/workflows/{0}/pending_calculation/unassign";//put
+        private readonly string _assignSbProjectResource = @"/rfworkflow/v1/workflows/{0}/manager_review/assign";//put
+        private readonly string _unassignSbProjectResource = @"/rfworkflow/v1/workflows/{0}/manager_review/unassign";//put
         private readonly string _assignPaymentProjectResource = "/rfworkflow/v1/workflows/{0}/add_payments/assign";//put
         private readonly string _getReportSbProjectResource = "/rfreports/v1/{0}/reports"; //get
         private readonly string _generateReportSbProjectResource = "/rfreports/v1/{0}/reports"; //post
-        
-        private readonly string _ApproveSBProjectByManagerResource = @"/rfworkflow/v1/workflows/{0}/adjustments/complete";//put
+        private readonly string _ApproveSBProjectByManagerResource = @"/rfworkflow/v1/workflows/{0}/manager_review/complete";//put
         private readonly string _ApprovePaymentProjectByManagerResource = "/rfworkflow/v1/workflows/{0}/add_payments/complete";//put
-        
         
         private string _client="umbrella";
         private Login _credentials;
@@ -63,16 +61,8 @@ namespace RF_autotest.Clients
             _headers.Add("Authorization", "SessionID " + _session_id);
             Debug.WriteLine("Logged to the app as:  "+ json);
             Debug.WriteLine("sessionID:  "+ _session_id + '\n');
-
         }
-
-        public void GetUnassignedProjects()
-        {
-            var response = _requests.GetRequest(_getUnassignedProjectsResource, _headers);
-            Debug.WriteLine("List of unassigned projects:  " + response.Content + '\n');
-
-        }
-
+        
         public IRestResponse AssignSbProject(CreatedProject project)
         {
             if (!_headers.ContainsKey("X-Project-Type"))
@@ -81,7 +71,6 @@ namespace RF_autotest.Clients
             WaitForAssignProject(project, 5000, true);
             Debug.WriteLine("Assign project: " + response.Content + '\n');
             return response;
-
         }
 
         private void WaitForAssignProject(CreatedProject project, [Optional]int time_milliseconds, bool assign)
@@ -98,7 +87,7 @@ namespace RF_autotest.Clients
                 }
             } else
             {
-                while (project.assignee != null || Convert.ToInt16(stopTimer.ElapsedMilliseconds) < time_milliseconds)
+                while (project.assignee != null || Convert.ToInt32(stopTimer.ElapsedMilliseconds) < time_milliseconds)
                 {
                     project = JsonConvert.DeserializeObject<CreatedProject>(GetProjectInfo(project.id).Content);
                 }
@@ -107,7 +96,7 @@ namespace RF_autotest.Clients
             stopTimer.Stop();
         }
 
-        public IRestResponse UnassignProject(CreatedProject project)
+        public IRestResponse UnassignSBProject(CreatedProject project)
         {
             if (!_headers.ContainsKey("X-Project-Type"))
                 _headers.Add("X-Project-Type", project.project_type);
@@ -131,7 +120,7 @@ namespace RF_autotest.Clients
             var response= _requests.PostRequest(String.Format(_generateReportSbProjectResource, project.id), json, _headers);
             Debug.WriteLine("Generate report: " + response.IsSuccessful + '\n');
             _waitGenerationReportSBproject(project);
-           // response = GetProjectInfo(project.id);
+           
             return response;
         }
 
@@ -165,27 +154,17 @@ namespace RF_autotest.Clients
 
         public IRestResponse ApproveProjectByManager(CreatedProject project)
         {
-            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/SendToManager.json");
+            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/ApproveByClient.json");
             if (!_headers.ContainsKey("X-Project-Type"))
                 _headers.Add("X-Project-Type", project.project_type);
             var response = _requests.PutRequest(String.Format(_ApproveSBProjectByManagerResource, project.id), json, _headers);
-            Debug.WriteLine("Send SB project to Manager: " + response.IsSuccessful + '\n');
+            Debug.WriteLine("Approve SB project by Manager: " + response.IsSuccessful + '\n');
             return response;
-
         }
-        void PaymentsPackageOff()
-        {
 
-        }
         void RejectProjectByManager()
         {
-
         }
-        void AproveProjectByManager()
-        {
-
-        }
-       
 
     }
 }

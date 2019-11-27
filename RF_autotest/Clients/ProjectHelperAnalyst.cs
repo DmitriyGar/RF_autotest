@@ -25,14 +25,16 @@ namespace RF_autotest.Clients
         private readonly string _getProjectInfo = @"/rfprojects/v1/projects/{0}";
         private readonly string _assignSbProjectResource = @"/rfworkflow/v1/workflows/{0}/pending_calculation/assign";//put
         private readonly string _unassignSbProjectResource = @"/rfworkflow/v1/workflows/{0}/pending_calculation/unassign";//put
-        private readonly string _assignPaymentProjectResource = "/rfworkflow/v1/workflows/{0}/add_payments/assign";//put
+        //private readonly string _assignPaymentProjectResource = "/rfworkflow/v1/workflows/{0}/add_payments/assign";//put
         private readonly string _getReportSbProjectResource = "/rfreports/v1/{0}/reports"; //get
         private readonly string _generateReportSbProjectResource = "/rfreports/v1/{0}/reports"; //post
         private readonly string _calculateSbProjectResource = @"/rfworkflow/v1/workflows/{0}/pending_calculation/complete"; //put
         private readonly string _SendSBProjectToManagerResource = @"/rfworkflow/v1/workflows/{0}/adjustments/complete";//put
-        private readonly string _SendPaymentProjectToManagerResource = "/rfworkflow/v1/workflows/{0}/add_payments/complete";//put
+        //private readonly string _SendPaymentProjectToManagerResource = "/rfworkflow/v1/workflows/{0}/add_payments/complete";//put
         private readonly string _paymentPackageOnResource = @"/clients/v1/services/Rebates%2520and%2520Fees"; //put
-        
+        private readonly string _approveSbProjectByClientResource = @"/rfworkflow/v1/workflows/{0}/final_review/complete"; //put
+        private readonly string _closeSbProjectPaymentDetailsResource = @"/rfworkflow/v1/workflows/{0}/manual_payment/complete"; //put
+
         private string _client="umbrella";
         private Login _credentials;
         private Dictionary<string, string> _headers;
@@ -108,7 +110,7 @@ namespace RF_autotest.Clients
                 }
             } else
             {
-                while (project.assignee != null || Convert.ToInt16(stopTimer.ElapsedMilliseconds) < time_milliseconds)
+                while (project.assignee != null || Convert.ToInt32(stopTimer.ElapsedMilliseconds) < time_milliseconds)
                 {
                     project = JsonConvert.DeserializeObject<CreatedProject>(GetProjectInfo(project.id).Content);
                 }
@@ -219,11 +221,18 @@ namespace RF_autotest.Clients
         {
 
         }
-        void AproveProjectByClient()
+        public IRestResponse AproveProjectByClient(CreatedProject project)
+         
         {
+            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/ApproveByClient.json");
+            if (!_headers.ContainsKey("X-Project-Type"))
+                _headers.Add("X-Project-Type", project.project_type);
+            var response = _requests.PutRequest(String.Format(_approveSbProjectByClientResource, project.id), json, _headers);
+            Debug.WriteLine("Approve SB project by Client: " + response.IsSuccessful + '\n');
+            return response;
 
         }
-        void CloseProjectWithProjectDetails()
+        void CloseProjectWithPaymentDetails()
         {
 
         }
