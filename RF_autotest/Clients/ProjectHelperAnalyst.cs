@@ -1,32 +1,23 @@
 ﻿using Newtonsoft.Json;
-using NUnit.Framework;
-using RestSharp;
 using RF_autotest.Models;
 using RF_autotest.Models.SbProject;
 using RF_autotest.Settings;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Dynamic;
 
 namespace RF_autotest.Clients
 {
-    class ProjectHelperAnalyst: BaseClient
+    class ProjectHelperAnalyst: ProjectHelper
         
     {
-        private readonly string  _loginToAppResource = "/apigateway/v1/sessions"; //post
         private readonly string _getUnassignedProjectsResource = "/rfprojects/v1/unassigned";
         private readonly string _createSbProjectResource ="/rfprojects/v1/projects"; //post
-        private readonly string _getProjectInfo = @"/rfprojects/v1/projects/{0}";
         private readonly string _assignSbProjectResource = @"/rfworkflow/v1/workflows/{0}/pending_calculation/assign";//put
         private readonly string _unassignSbProjectResource = @"/rfworkflow/v1/workflows/{0}/pending_calculation/unassign";//put
         //private readonly string _assignPaymentProjectResource = "/rfworkflow/v1/workflows/{0}/add_payments/assign";//put
-        private readonly string _getReportSbProjectResource = "/rfreports/v1/{0}/reports"; //get
-        private readonly string _generateReportSbProjectResource = "/rfreports/v1/{0}/reports"; //post
         private readonly string _calculateSbProjectResource = @"/rfworkflow/v1/workflows/{0}/pending_calculation/complete"; //put
         private readonly string _SendSBProjectToManagerResource = @"/rfworkflow/v1/workflows/{0}/adjustments/complete";//put
         //private readonly string _SendPaymentProjectToManagerResource = "/rfworkflow/v1/workflows/{0}/add_payments/complete";//put
@@ -35,42 +26,21 @@ namespace RF_autotest.Clients
         private readonly string _closeSbProjectResource = @"/rfworkflow/v1/workflows/{0}/manual_payment/complete"; //put
         private readonly string _enterManualPaymentsResource = @"/rfpayments/v1/payments/{0}/{1}"; //put
         private readonly string _getPaymentsResource= @"/rfpayments/v1/payments/{0}"; //get
-
-        private string _client="umbrella";
-        private Login _credentials;
-        private Dictionary<string, string> _headers;
-        private RequestBuilder _requests;
-        private List<ReportsInfo>  _report;
         private List<Payments> _payments;
         private string _session_id;
 
-        public ProjectHelperAnalyst([Optional]Dictionary<string, string> headers)
-        {
+        public ProjectHelperAnalyst() {
             _headers = new Dictionary<string, string>(){
-                
+
                 { "Accept", "application/json" },
                 { "X-client", _client}
             };
-            _credentials = new Login();
-            _requests = new RequestBuilder();
-            _report = new  List<ReportsInfo>();
-            _payments = new List<Payments>();
-
-
-
         }
 
         public void LoginToApp()
         {
-            _credentials.username = Configuration.LoginRfAnalyst;
-            _credentials.password = Configuration.Password;
-            string json = JsonConvert.SerializeObject(_credentials);          
-            var response =_requests.PostRequest(_loginToAppResource,json, _headers).Content;      
-            _session_id = JsonConvert.DeserializeObject<SessionIdentification>(response).SessionId;
+            _session_id=Login(Configuration.LoginRfAnalyst);
             _headers.Add("Authorization", "SessionID " + _session_id);
-            Debug.WriteLine("Logged to the app as:  "+ json);
-            Debug.WriteLine("sessionID:  "+ _session_id + '\n');
-
         }
 
         public void GetUnassignedProjects()
@@ -80,144 +50,77 @@ namespace RF_autotest.Clients
 
         }
 
-        public IRestResponse CreateSBProject()
+        public CreatedProject CreateSBProject()
         {
             string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/CreateProjectQA.json");
             var response = _requests.PostRequest(_createSbProjectResource, json, _headers);
             Debug.WriteLine("Creating response:  " + response.StatusCode + '\n');
-            return response;
-
+            var project=JsonConvert.DeserializeObject<CreatedProject>(response.Content);
+            _waitChangingWorkflowSubStep(_getProjectInfo(project.id), null, "pending_calculation");
+            return project;
         }
 
-        public IRestResponse AssignSbProject(CreatedProject project)
+        public void AssignSbProject(CreatedProject project)
         {
-            if (!_headers.ContainsKey("X-Project-Type"))
-                _headers.Add("X-Project-Type", project.project_type);
-            var response = _requests.PutRequest(String.Format(_assignSbProjectResource, project.id), "",  _headers);
-            WaitForAssignProject(project, 5000, true);
-            Debug.WriteLine("Assign project: " + response.Content + '\n');
-            return response;
-
+            _assignSbProject(project, _assignSbProjectResource);
         }
 
-        private void WaitForAssignProject(CreatedProject project, [Optional]int time_milliseconds, bool assign)
+        public void UnassignProject(CreatedProject project)
         {
-            int timer = 30000;
-            if (time_milliseconds == 0)
-                time_milliseconds = timer;
-            Stopwatch stopTimer = Stopwatch.StartNew();
-            stopTimer.Start();
-            if (assign == true) { 
-                while (project.assignee == null || Convert.ToInt32(stopTimer.ElapsedMilliseconds) < time_milliseconds)
-                {
-                    project = JsonConvert.DeserializeObject<CreatedProject>(GetProjectInfo(project.id).Content);
-                }
-            } else
-            {
-                while (project.assignee != null || Convert.ToInt32(stopTimer.ElapsedMilliseconds) < time_milliseconds)
-                {
-                    project = JsonConvert.DeserializeObject<CreatedProject>(GetProjectInfo(project.id).Content);
-                }
-            }
-
-            stopTimer.Stop();
+            _unassignProject(project, _unassignSbProjectResource);
         }
 
-        public IRestResponse UnassignProject(CreatedProject project)
+        public CreatedProject GetProjectInfo(string projectId)
         {
-            if (!_headers.ContainsKey("X-Project-Type"))
-                _headers.Add("X-Project-Type", project.project_type);
-            var response = _requests.PutRequest(String.Format(_unassignSbProjectResource, project.id), "", _headers);
-            WaitForAssignProject(project, 5000, false);
-            Debug.WriteLine("Unassign project: " + response.Content + '\n');
-            return response;
+            return _getProjectInfo(projectId);
         }
 
-        public IRestResponse GetProjectInfo(string projectId)
-        {
-            var response = _requests.GetRequest(String.Format(_getProjectInfo, projectId), _headers);
-            return response;
-        }
-
-        public IRestResponse CalculateSBproject(CreatedProject project)
+        public void CalculateSBproject(CreatedProject project)
         {
             string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/calculate.json");
             if (!_headers.ContainsKey("X-Project-Type"))
             _headers.Add("X-Project-Type", project.project_type);
             var response = _requests.PutRequest(String.Format(_calculateSbProjectResource, project.id), json, _headers);
             Debug.WriteLine("Start calculating: " + response.IsSuccessful + '\n');
-            return response;
-        }
-        public IRestResponse WaitCalculatingSBproject(CreatedProject project)
-        {
+            _waitChangingWorkflowSubStep(GetProjectInfo(project.id),"pending_calculation", "calculating");
            
-            while (project.workflow_substep[0] == "calculating"||project.workflow_substep[0] == "pending_calculation")
-            {
-                project = JsonConvert.DeserializeObject<CreatedProject>(GetProjectInfo(project.id).Content);
-               
-            }
-            Debug.WriteLine("Calculation finished. Sub-step: " + project.workflow_substep[0] + '\n');
-            Debug.WriteLine("Total amount: " + project.additional_attributes.total_amount + '\n');
-            var response = GetProjectInfo(project.id);
-            return response;
         }
-
-        public IRestResponse GenerateReportSBproject(CreatedProject project)
+        public void WaitCalculatingSBproject(CreatedProject project)
         {
-            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/GenerateReportSBProject.json");
-            if (_headers.ContainsKey("X-Project-Type"))
-                _headers.Remove("X-Project-Type");
-            var response= _requests.PostRequest(String.Format(_generateReportSbProjectResource, project.id), json, _headers);
-            Debug.WriteLine("Generate report: " + response.IsSuccessful + '\n');
-            _waitGenerationReportSBproject(project);
-            response = GetProjectInfo(project.id);
-            return response;
+            _waitChangingWorkflowSubStep(GetProjectInfo(project.id), "calculating", "adjustments");
+            project=GetProjectInfo(project.id);
+            Debug.WriteLine("Calculation finished. Sub-step: " + project.workflow_substep[0]);
+            Debug.WriteLine("Total amount: " + project.additional_attributes.total_amount + '\n');          
         }
 
-        private IRestResponse _waitGenerationReportSBproject(CreatedProject project, [Optional]int time_milliseconds)
+        public void GenerateReportSBproject(CreatedProject project)
         {
-            int timer = 120000;
-            if (time_milliseconds == 0)
-                time_milliseconds = timer;
-            Stopwatch stopTimer = Stopwatch.StartNew();
-            stopTimer.Start();
-            Debug.WriteLine("Report generating...: "+'\n');
-            while (_report.Count==0 || Convert.ToUInt32(stopTimer.ElapsedMilliseconds) < time_milliseconds)
-            {
-                _report = JsonConvert.DeserializeObject<List<ReportsInfo>>(GetReportsInfo(project.id).Content);
-                if (_report.Count != 0)
-                {
-                    break;
-                }
-            }
-            Debug.WriteLine("Report generated: " + _report.FirstOrDefault().report_type + '\n');
-            var response = GetReportsInfo(project.id);
-            return response;
+            _generateReportSBproject(project);
         }
 
-        public IRestResponse GetReportsInfo(string projectId)
-           
+        public List<ReportsInfo> GetReportsInfo(string projectId) 
         {
-            var response = _requests.GetRequest(String.Format(_getReportSbProjectResource, projectId), _headers);
-            return response;
+            var generatedReports = JsonConvert.DeserializeObject<List<ReportsInfo>>(_getReportsInfo(projectId).Content);
+            return generatedReports;
         }
 
-        public IRestResponse SendProjectToManager(CreatedProject project)
+        public void SendProjectToManager(CreatedProject project)
         {
             string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/SendToManager.json");
             if (!_headers.ContainsKey("X-Project-Type"))
                 _headers.Add("X-Project-Type", project.project_type);
             var response = _requests.PutRequest(String.Format(_SendSBProjectToManagerResource, project.id), json, _headers);
             Debug.WriteLine("Send SB project to Manager: " + response.IsSuccessful + '\n');
-            return response;
-
+            _waitChangingWorkflowSubStep(GetProjectInfo(project.id), "adjustments", "manager_review");
         }
+
         public void PaymentsPackageOn()
         {
             string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/PaymentsPackageOn.json");
             var response =_requests.PutRequest(String.Format(_paymentPackageOnOffResource), json, _headers);
             Debug.WriteLine("Payment package on: " + response.IsSuccessful + '\n');    
         }
+
         public void PaymentsPackageOff()
         {
             string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/PaymentsPackageOff.json");
@@ -229,20 +132,19 @@ namespace RF_autotest.Clients
         {
             //TODO
         }
-        public IRestResponse AproveProjectByClient(CreatedProject project)
-         
+
+        public void AproveProjectByClient(CreatedProject project)
         {
             string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/ApproveByClient.json");
             if (!_headers.ContainsKey("X-Project-Type"))
                 _headers.Add("X-Project-Type", project.project_type);
             var response = _requests.PutRequest(String.Format(_approveSbProjectByClientResource, project.id), json, _headers);
             Debug.WriteLine("Approve SB project by Client: " + response.IsSuccessful + '\n');
-            return response;
+            _waitChangingWorkflowSubStep(GetProjectInfo(project.id), "final_review", "manual_payment");
         }
 
         private List<Payments> _getPayments(CreatedProject project)
         {
-            
             var response = _requests.GetRequest(String.Format(_getPaymentsResource, project.id), _headers);
             _payments = JsonConvert.DeserializeObject<List<Payments>>(response.Content);
             return _payments;
@@ -258,9 +160,31 @@ namespace RF_autotest.Clients
                 var response = _requests.PutRequest(String.Format(_enterManualPaymentsResource, project.id, pay.id), json, _headers);
                 Debug.WriteLine("Enter payment details: " + response.IsSuccessful + '\n');
             }
+            _waitEnterPaymentDetails(project);
         }
 
-        public IRestResponse CloseProjectWithPaymentDetails(CreatedProject project)
+        private void _waitEnterPaymentDetails(CreatedProject project)
+        {
+            int timer = 30000;
+            Stopwatch stopTimer = Stopwatch.StartNew();
+            stopTimer.Start();
+            foreach (Payments pay in _getPayments(project)) {
+                while (pay.check_number==null&&pay.check_date==null&&pay.paid_amount==null)
+                {
+                    project = _getProjectInfo(project.id);
+                    if (pay.check_number != null && pay.check_date != null && pay.paid_amount != null)
+                        { break; }
+                    else if (Convert.ToUInt32(stopTimer.ElapsedMilliseconds) > timer)
+                    {
+                        Debug.WriteLine("ERROR: Substep wasn't changed. " + '\n');
+                        break;
+                    }
+                }
+            }
+            stopTimer.Stop();
+        }
+
+        public void CloseProjectWithPaymentDetails(CreatedProject project)
         {
             dynamic close = new ExpandoObject();
               close.action="close";
@@ -268,8 +192,8 @@ namespace RF_autotest.Clients
             if (!_headers.ContainsKey("X-Project-Type"))
                 _headers.Add("X-Project-Type", project.project_type);
             var response = _requests.PutRequest(String.Format(_closeSbProjectResource, project.id),json, _headers);
+            _waitChangingWorkflowSubStep(GetProjectInfo(project.id), "manual_payment", null);
             Debug.WriteLine("Close SB project: " + response.IsSuccessful + '\n');
-            return response;
         }
 
     }

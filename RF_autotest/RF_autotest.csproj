@@ -81,6 +81,7 @@
     <Compile Include="Clients\BaseClient.cs" />
     <Compile Include="Clients\DataBaseClient.cs" />
     <Compile Include="Clients\ProjectHelperAdmin.cs" />
+    <Compile Include="Clients\ProjectHelper.cs" />
     <Compile Include="Clients\ProjectHelperManager.cs" />
     <Compile Include="Clients\ProjectHelperAnalyst.cs" />
     <Compile Include="Clients\RequestBuilder.cs" />

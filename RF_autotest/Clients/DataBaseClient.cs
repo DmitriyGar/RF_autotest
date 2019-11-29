@@ -38,7 +38,7 @@ namespace RF_autotest.Clients
 
         }
 
-        public bool isExistRowDB(string id)
+        private bool isExistRowDB(string id)
         {
             bool isExist = false;
             try
@@ -61,7 +61,7 @@ namespace RF_autotest.Clients
             }
             return isExist;
         }
-        public void DeleteRowDB(string id)
+        public void DeleteProjectInDB(string id)
         {
             try
             {
