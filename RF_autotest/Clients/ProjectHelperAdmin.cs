@@ -49,10 +49,17 @@ namespace RF_autotest.Clients
             Debug.WriteLine("sessionID:  " + _session_id + '\n');
 
         }
-        public void DeleteProject(string projectId)
+        public bool DeleteProject(string projectId)
         {
+            bool isDeleted=false;
             var response = _requests.DeleteRequest(String.Format(_deleteProjectResource, projectId), _headers);
+            if (response.IsSuccessful)
+                isDeleted = true;
+            else
+                isDeleted = false;
             Debug.WriteLine("Deleted project:  " + response.Content);
+            return isDeleted;
+
         }
 
         public IRestResponse GetProjectInfo(string projectId)

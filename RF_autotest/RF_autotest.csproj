@@ -84,7 +84,8 @@
     <Compile Include="Clients\ProjectHelperManager.cs" />
     <Compile Include="Clients\ProjectHelperAnalyst.cs" />
     <Compile Include="Clients\RequestBuilder.cs" />
-    <Compile Include="Models\PaymentProject\PaymentPackageOff.cs" />
+    <Compile Include="Models\Payments.cs" />
+    <Compile Include="Models\PaymentProject\PaymentPackageOnOff.cs" />
     <Compile Include="Models\SbProject\CreatedProject.cs" />
     <Compile Include="Models\SbProject\CreateProject.cs" />
     <Compile Include="Models\Login.cs" />
@@ -104,7 +105,9 @@
     <None Include="Config\CancelCalculation.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Config\CloseSBProject.json" />
+    <None Include="Config\CloseSBProject.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Config\CreatedProject.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -120,7 +123,16 @@
     <None Include="Config\GenerateReportPaymentProject.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Config\Payments.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Config\Login.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config\ManualPayments.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config\PaymentsPackageOff.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Config\PaymentsPackageOn.json">

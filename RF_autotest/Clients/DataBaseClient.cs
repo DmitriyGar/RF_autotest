@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Npgsql;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
@@ -9,49 +10,78 @@ using System.Threading.Tasks;
 namespace RF_autotest.Clients
 {
     public class DataBaseClient
+         
     {
+        private NpgsqlConnection _conn;
+        private NpgsqlCommand _command;
+        private NpgsqlDataReader _dr;
+
         public DataBaseClient()
+        {   
+        }
+
+        private void _dbConnect()
         {
             try
             {
-                NpgsqlConnection conn = new NpgsqlConnection("Server=192.168.0.218; Port=5432; User Id=postgres; Password=1234; Database=uchet_tool_pribor");
-
-                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
-                builder.DataSource = "rf-qa-db1.zkpsl3bk22wuvfspx0uhovklae.bx.internal.cloudapp.net";
-                
-                builder.UserID = "camunda";
-                builder.Password = "camunda";
-                builder.InitialCatalog = "rfprojects_umbrella";
-
-                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
-                {
-                    Debug.WriteLine("\nQuery data example:");
-                    Debug.WriteLine("=========================================\n");
-
-                    connection.Open();
-                    StringBuilder sb = new StringBuilder();
-                    sb.Append("SELECT TOP 20 id ");
-                    sb.Append("FROM projects; ");
-                    String sql = sb.ToString();
-
-                    using (SqlCommand command = new SqlCommand(sql, connection))
-                    {
-                        using (SqlDataReader reader = command.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                Debug.WriteLine("{0} {1}", reader.GetString(0), reader.GetString(1));
-                            }
-                        }
-                    }
-                    connection.Close();
-                }
+                _conn = new NpgsqlConnection("Server=rf-qa-db1.zkpsl3bk22wuvfspx0uhovklae.bx.internal.cloudapp.net;" +
+               "Port=5432;" +
+               "User Id=camunda;" +
+               "Password=camunda;" +
+               "Database=rfprojects_umbrella;");
+                _conn.Open();
             }
             catch (SqlException e)
             {
                 Debug.WriteLine(e.ToString());
             }
-            
+
+        }
+
+        public bool isExistRowDB(string id)
+        {
+            bool isExist = false;
+            try
+            {
+                string _selectRequest = String.Format(@"SELECT id FROM projects WHERE id='{0}'", id);
+                // Connect to a PostgreSQL database
+                _dbConnect();
+                // Define a query returning a single row result set
+                _command = new NpgsqlCommand(_selectRequest, _conn);
+                // Execute the query and obtain a result set
+                _dr = _command.ExecuteReader();
+                if (!_dr.Read())
+                    isExist = false;
+                else
+                    isExist = true;
+                _conn.Close();
+            } catch (SqlException e)
+            {
+                Debug.WriteLine(e.ToString());
+            }
+            return isExist;
+        }
+        public void DeleteRowDB(string id)
+        {
+            try
+            {
+                string _deleteRequest = String.Format(@"DELETE FROM projects WHERE id='{0}'", id);
+                // Connect to a PostgreSQL database
+                _dbConnect();
+                // Define a query returning a single row result set
+                _command = new NpgsqlCommand(_deleteRequest, _conn);
+                // Execute the query and obtain a result set
+                _dr = _command.ExecuteReader();
+                if (!isExistRowDB(id))
+                    Debug.WriteLine("Project is deleted in database");
+                else
+                    Debug.WriteLine("=>"+ _dr.Read().ToString());
+                _conn.Close();
+            }
+            catch (SqlException e)
+            {
+                Debug.WriteLine(e.ToString());
+            }
         }
     }
 }

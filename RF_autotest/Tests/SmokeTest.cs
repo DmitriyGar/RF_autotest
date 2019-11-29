@@ -20,9 +20,11 @@ namespace RF_autotest.Tests
     {
         private ProjectHelperAnalyst _projectHelperAnalyst;
         private ProjectHelperAdmin _projectHelperAdmin;
-        ProjectHelperManager _projectHelperManager;
+        private ProjectHelperManager _projectHelperManager;
+        private DataBaseClient _dbClient;
         private CreatedProject _createdSbProject;
         private List<ReportsInfo> _generatedReports;
+        private bool _isDeleted = false;
 
         public SmokeTest()
         {
@@ -31,18 +33,17 @@ namespace RF_autotest.Tests
             _projectHelperManager = new ProjectHelperManager();
             _createdSbProject = new CreatedProject();
             _generatedReports = new List<ReportsInfo>();
-
+            _dbClient = new DataBaseClient();
         }
-        [Test]
+        [OneTimeSetUp]
         public void PreConditions()
         {
-            DataBaseClient db = new DataBaseClient();
-          //  _projectHelperAnalyst.LoginToApp();
-          //  _projectHelperAdmin.LoginToApp();
-          //  _projectHelperManager.LoginToApp();
+             _projectHelperAnalyst.LoginToApp();
+             _projectHelperAdmin.LoginToApp();
+             _projectHelperManager.LoginToApp();
         }
-      
-        
+
+        [Test]
         public void SmokeTestWorkflow()
         {
             #region Create SB-project
@@ -126,12 +127,13 @@ namespace RF_autotest.Tests
             _createdSbProject = JsonConvert.DeserializeObject<CreatedProject>(_projectHelperManager.GetProjectInfo(_createdSbProject.id).Content);
             Assert.That(_createdSbProject.assignee, Is.EqualTo("rf_manager@cis-cust.lan"));
             Assert.That(_createdSbProject.owners[1].user, Is.EqualTo("rf_manager@cis-cust.lan"));
+            _projectHelperAnalyst.PaymentsPackageOff();
             #endregion
 
             #region Approve SbProject by Manager
             Debug.WriteLine("APPROVE SB PROJECT BY MANAGER");
             _projectHelperManager.ApproveProjectByManager(_createdSbProject);
-            Thread.Sleep(3000);
+            Thread.Sleep(6000);
             _createdSbProject = JsonConvert.DeserializeObject<CreatedProject>(_projectHelperAnalyst.GetProjectInfo(_createdSbProject.id).Content);
             Assert.That(_createdSbProject.workflow_substep[0], Is.EqualTo("final_review"));
             Assert.That(_createdSbProject.assignee, Is.Null);
@@ -140,11 +142,24 @@ namespace RF_autotest.Tests
             #region Approve SbProject by Client
             Debug.WriteLine("APPROVE SB PROJECT BY CLIENT");
             _projectHelperAnalyst.AproveProjectByClient(_createdSbProject);
-            Thread.Sleep(3000);
+            Thread.Sleep(6000);
             _createdSbProject = JsonConvert.DeserializeObject<CreatedProject>(_projectHelperAnalyst.GetProjectInfo(_createdSbProject.id).Content);
             Assert.That(_createdSbProject.workflow_step, Is.EqualTo("payment"));
             Assert.That(_createdSbProject.workflow_substep[0], Is.EqualTo("manual_payment"));
             Assert.That(_createdSbProject.assignee, Is.EqualTo("rf_analyst@cis-cust.lan"));
+            #endregion
+
+            #region Enter manual payments and close project
+            Debug.WriteLine("ENTER MANUAL PAYMENTS AND CLOSE SB PROJECT");
+            _projectHelperAnalyst.EnterPaymentDetails(_createdSbProject);
+            Thread.Sleep(6000);
+            _createdSbProject = JsonConvert.DeserializeObject<CreatedProject>(_projectHelperAnalyst.GetProjectInfo(_createdSbProject.id).Content);
+            _projectHelperAnalyst.CloseProjectWithPaymentDetails(_createdSbProject);
+            Thread.Sleep(6000);
+            _createdSbProject = JsonConvert.DeserializeObject<CreatedProject>(_projectHelperAnalyst.GetProjectInfo(_createdSbProject.id).Content);
+            Assert.That(_createdSbProject.workflow_step, Is.Null);
+            Assert.That(_createdSbProject.is_closed);
+            Assert.That(_createdSbProject.assignee, Is.Null);
             #endregion
         }
 
@@ -152,8 +167,11 @@ namespace RF_autotest.Tests
         [OneTimeTearDown]
         public void PostConditions()
         {
+            
             Debug.WriteLine("DELETING OF SB-PROJECT");
-            _projectHelperAdmin.DeleteProject(_createdSbProject.id);
+            _isDeleted=_projectHelperAdmin.DeleteProject(_createdSbProject.id);
+            if (!_isDeleted)
+                _dbClient.DeleteRowDB(_createdSbProject.id); 
         }
     }
 }
