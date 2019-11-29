@@ -15,7 +15,7 @@ namespace RF_autotest.Settings
         public static readonly string NameRfAnalyst = "rf_analyst@cis-cust.lan";
         public static readonly string LoginRfManager = "rf_manager";
         public static readonly string LoginRfAdmin = "rf_admin";
-
+        public static readonly string Client = "umbrella";
         public static readonly string Password = "Dummy#123";
               
     }

@@ -28,7 +28,6 @@ namespace RF_autotest.Clients
                     foreach (var header in headers)
                     {
                         request.AddHeader(header.Key, header.Value);
-                        //Debug.WriteLine($"Request Headers: {header.Key} {header.Value}");
                     }
                 }
             
@@ -37,21 +36,17 @@ namespace RF_autotest.Clients
             return response;
         }
 
-        public IRestResponse Wait(IRestResponse response, [Optional]int time_seconds)
+        public IRestResponse Wait(IRestResponse response)
         {
             
             int timer = 30000;
-            if (time_seconds == 0)
-                time_seconds = timer;
             Stopwatch stopTimer = Stopwatch.StartNew();
             stopTimer.Reset();
             stopTimer.Start();
-            while (Convert.ToInt32(stopTimer.ElapsedMilliseconds) < time_seconds) {
-               
+            while (Convert.ToInt32(stopTimer.ElapsedMilliseconds) < timer) {
                 if (response.IsSuccessful) break; 
             }
             stopTimer.Stop();
-           // Thread.Sleep(2000);
             return response;
         }
     }
