@@ -11,8 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.Dynamic;
 
 namespace RF_autotest.Clients
 {
@@ -25,19 +24,24 @@ namespace RF_autotest.Clients
         private readonly string _getProjectInfo = @"/rfprojects/v1/projects/{0}";
         private readonly string _assignSbProjectResource = @"/rfworkflow/v1/workflows/{0}/pending_calculation/assign";//put
         private readonly string _unassignSbProjectResource = @"/rfworkflow/v1/workflows/{0}/pending_calculation/unassign";//put
-        private readonly string _assignPaymentProjectResource = "/rfworkflow/v1/workflows/{0}/add_payments/assign";//put
+        //private readonly string _assignPaymentProjectResource = "/rfworkflow/v1/workflows/{0}/add_payments/assign";//put
         private readonly string _getReportSbProjectResource = "/rfreports/v1/{0}/reports"; //get
         private readonly string _generateReportSbProjectResource = "/rfreports/v1/{0}/reports"; //post
         private readonly string _calculateSbProjectResource = @"/rfworkflow/v1/workflows/{0}/pending_calculation/complete"; //put
         private readonly string _SendSBProjectToManagerResource = @"/rfworkflow/v1/workflows/{0}/adjustments/complete";//put
-        private readonly string _SendPaymentProjectToManagerResource = "/rfworkflow/v1/workflows/{0}/add_payments/complete";//put
-        private readonly string _paymentPackageOnResource = @"/clients/v1/services/Rebates%2520and%2520Fees"; //put
-        
+        //private readonly string _SendPaymentProjectToManagerResource = "/rfworkflow/v1/workflows/{0}/add_payments/complete";//put
+        private readonly string _paymentPackageOnOffResource = @"/clients/v1/services/Rebates%2520and%2520Fees"; //put
+        private readonly string _approveSbProjectByClientResource = @"/rfworkflow/v1/workflows/{0}/final_review/complete"; //put
+        private readonly string _closeSbProjectResource = @"/rfworkflow/v1/workflows/{0}/manual_payment/complete"; //put
+        private readonly string _enterManualPaymentsResource = @"/rfpayments/v1/payments/{0}/{1}"; //put
+        private readonly string _getPaymentsResource= @"/rfpayments/v1/payments/{0}"; //get
+
         private string _client="umbrella";
         private Login _credentials;
         private Dictionary<string, string> _headers;
         private RequestBuilder _requests;
         private List<ReportsInfo>  _report;
+        private List<Payments> _payments;
         private string _session_id;
 
         public ProjectHelperAnalyst([Optional]Dictionary<string, string> headers)
@@ -49,9 +53,11 @@ namespace RF_autotest.Clients
             };
             _credentials = new Login();
             _requests = new RequestBuilder();
-            _report = new  List<ReportsInfo>() ;
-                
-            
+            _report = new  List<ReportsInfo>();
+            _payments = new List<Payments>();
+
+
+
         }
 
         public void LoginToApp()
@@ -108,7 +114,7 @@ namespace RF_autotest.Clients
                 }
             } else
             {
-                while (project.assignee != null || Convert.ToInt16(stopTimer.ElapsedMilliseconds) < time_milliseconds)
+                while (project.assignee != null || Convert.ToInt32(stopTimer.ElapsedMilliseconds) < time_milliseconds)
                 {
                     project = JsonConvert.DeserializeObject<CreatedProject>(GetProjectInfo(project.id).Content);
                 }
@@ -209,23 +215,61 @@ namespace RF_autotest.Clients
         public void PaymentsPackageOn()
         {
             string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/PaymentsPackageOn.json");
-            var response =_requests.PutRequest(String.Format(_paymentPackageOnResource), json, _headers).Content;
-            Debug.WriteLine("Payment package on: " + response + '\n');
-           
+            var response =_requests.PutRequest(String.Format(_paymentPackageOnOffResource), json, _headers);
+            Debug.WriteLine("Payment package on: " + response.IsSuccessful + '\n');    
         }
-        
+        public void PaymentsPackageOff()
+        {
+            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/PaymentsPackageOff.json");
+            var response = _requests.PutRequest(String.Format(_paymentPackageOnOffResource), json, _headers);
+            Debug.WriteLine("Payment package off: " + response.IsSuccessful + '\n');
+        }
 
         void ReturnProjectByClient()
         {
-
+            //TODO
         }
-        void AproveProjectByClient()
+        public IRestResponse AproveProjectByClient(CreatedProject project)
+         
         {
-
+            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/ApproveByClient.json");
+            if (!_headers.ContainsKey("X-Project-Type"))
+                _headers.Add("X-Project-Type", project.project_type);
+            var response = _requests.PutRequest(String.Format(_approveSbProjectByClientResource, project.id), json, _headers);
+            Debug.WriteLine("Approve SB project by Client: " + response.IsSuccessful + '\n');
+            return response;
         }
-        void CloseProjectWithProjectDetails()
-        {
 
+        private List<Payments> _getPayments(CreatedProject project)
+        {
+            
+            var response = _requests.GetRequest(String.Format(_getPaymentsResource, project.id), _headers);
+            _payments = JsonConvert.DeserializeObject<List<Payments>>(response.Content);
+            return _payments;
+        }
+
+        public void EnterPaymentDetails(CreatedProject project)
+        {
+            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/ManualPayments.json");
+            if (!_headers.ContainsKey("X-Project-Type"))
+                _headers.Add("X-Project-Type", project.project_type);
+            foreach (Payments pay in _getPayments(project))
+            {
+                var response = _requests.PutRequest(String.Format(_enterManualPaymentsResource, project.id, pay.id), json, _headers);
+                Debug.WriteLine("Enter payment details: " + response.IsSuccessful + '\n');
+            }
+        }
+
+        public IRestResponse CloseProjectWithPaymentDetails(CreatedProject project)
+        {
+            dynamic close = new ExpandoObject();
+              close.action="close";
+            string json = JsonConvert.SerializeObject(close);
+            if (!_headers.ContainsKey("X-Project-Type"))
+                _headers.Add("X-Project-Type", project.project_type);
+            var response = _requests.PutRequest(String.Format(_closeSbProjectResource, project.id),json, _headers);
+            Debug.WriteLine("Close SB project: " + response.IsSuccessful + '\n');
+            return response;
         }
 
     }

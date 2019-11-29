@@ -1,0 +1,40 @@
+[
+  {
+    "id": "0ac709e6-9e43-4f25-950e-7c16987954d7",
+    "project_uuid": "4a4d204b-d283-4a6a-ac9c-40a3b418f2cb",
+    "pay_to_bu": "6a600aeb-19ca-4152-bf35-022fdf49ab43",
+    "source_pay_to_bu": "7143f370-89a1-4d18-b5a4-e5abcbd3ae08",
+    "pay_to_bu_name": "Katya_BU",
+    "source_pay_to_bu_name": "Katya_BU",
+    "source_pay_to_bu_master_id": "12365",
+    "payable_amount": 57952,
+    "applied_credit": 0,
+    "total_payment": 57952,
+    "orders": [
+      {
+        "remarks": "4a4d204b-d283-4a6a-ac9c-40a3b418f2cb",
+        "unitPrice": 57952,
+        "itemNumber": 1,
+        "conditionType": "incentive",
+        "materialNumber": ""
+      }
+    ],
+    "payment_request_id": null,
+    "payment_request_date": null,
+    "payment_status": null,
+    "response_date": null,
+    "pay_to": "3265154",
+    "ship_to": "12365",
+    "sold_to": "12365",
+    "check_number": null,
+    "check_date": null,
+    "paid_amount": null,
+    "pay_to_identifier_type": "",
+    "created_at": "2019-03-27T07:20:08.403803",
+    "updated_at": "2019-03-27T07:20:08.403809",
+    "arrangement_uuid_list": [
+      "f0bd57e0-6e6a-4757-8e1a-b9e66cc280f3"
+    ],
+    "payment_method": null
+  }
+]
