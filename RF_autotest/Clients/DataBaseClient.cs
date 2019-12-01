@@ -1,4 +1,5 @@
 ﻿using Npgsql;
+using RF_autotest.Settings;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -24,8 +25,8 @@ namespace RF_autotest.Clients
         {
             try
             {
-                _conn = new NpgsqlConnection("Server=rf-qa-db1.zkpsl3bk22wuvfspx0uhovklae.bx.internal.cloudapp.net;" +
-               "Port=5432;" +
+                string server = String.Format("Server={0};", Configuration.HostQaDataBaseEnvironment);
+                _conn = new NpgsqlConnection(server +"Port=5432;" +
                "User Id=camunda;" +
                "Password=camunda;" +
                "Database=rfprojects_umbrella;");
