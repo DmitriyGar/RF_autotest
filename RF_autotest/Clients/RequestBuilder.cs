@@ -49,6 +49,16 @@ namespace RF_autotest.Clients
             return Wait(response);
         }
 
+        public IRestResponse PatchRequest(string resourse, string body, Dictionary<string, string> _headers)
+        {
+            var request = new RestRequest();
+            request.Method = Method.PATCH;
+            request.Resource = resourse;
+            request.AddJsonBody(body);
+            var response = SendRequest(request, _headers);
+            return Wait(response);
+        }
+
         public IRestResponse DeleteRequest(string resourse, [Optional] Dictionary<string, string> _headers)
         {
             var request = new RestRequest();

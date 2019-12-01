@@ -34,41 +34,46 @@ namespace RF_autotest.Clients
 
         public CreatedProject GetProjectInfo(string projectId)
         {
-            return _getProjectInfo(projectId);
+            return getProjectInfo(projectId);
         }
 
         public void AssignSbProject(CreatedProject project)
         {
-            _assignSbProject(project, _assignSbProjectResource);
+            assignProject(project, _assignSbProjectResource);
         }
 
         public void UnassignProject(CreatedProject project)
         {
-            _unassignProject(project, _unassignSbProjectResource);
+            unassignProject(project, _unassignSbProjectResource);
         }
 
 
         public void GenerateReportSBproject(CreatedProject project)
         {
-            _generateReportSBproject(project);
+            generateReport(project);
         }
 
         public IRestResponse GetReportsInfo(string projectId)
         {
-            return _getReportsInfo(projectId);
+            return getReportsInfo(projectId);
         }
 
         public IRestResponse ApproveProjectByManager(CreatedProject project)
         {
             string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/ApproveByClient.json");
-            if (!_headers.ContainsKey("X-Project-Type"))
-                _headers.Add("X-Project-Type", project.project_type);
+            setProjectTypeHeaders(project);
             var response = _requests.PutRequest(String.Format(_approveSBProjectByManagerResource, project.id), json, _headers);
             Debug.WriteLine("Approve SB project by Manager: " + response.IsSuccessful + '\n');
-            _waitChangingWorkflowSubStep(GetProjectInfo(project.id), "manager_review", "final_review");
+            if ((GetProjectInfo(project.id).project_type == "sb_rebate" && IsPaymentPackageOn() == false)
+                || (GetProjectInfo(project.id).project_type == "sb_rebate_payments")){
+                waitChangingWorkflowSubStep(GetProjectInfo(project.id), "manager_review", "final_review");
+            }
+            else if (GetProjectInfo(project.id).project_type == "sb_rebate" && IsPaymentPackageOn() == true)
+                waitChangingWorkflowSubStep(GetProjectInfo(project.id), "manager_review", "waiting_for_payments");
             return response;
         }
 
+        
         void RejectProjectByManager()
         {
         }

@@ -1,4 +1,5 @@
-﻿using RF_autotest.Models;
+﻿using RestSharp;
+using RF_autotest.Models;
 using RF_autotest.Settings;
 using System;
 using System.Collections.Generic;
@@ -31,24 +32,27 @@ namespace RF_autotest.Clients
             _headers.Add("Authorization", "SessionID " + _session_id);
         }
 
-        public void DeleteProject(string projectId)
+        public void DeleteProject(CreatedProject project)
         {
-            var response = _requests.DeleteRequest(String.Format(_deleteProjectResource, projectId), _headers);
-            if (response.IsSuccessful)
+            IRestResponse response = new RestResponse();
+            if (project.workflow_step != null && project.workflow_step != "payment" && project.workflow_step != "calculating"&& project.workflow_step !="final_review")
+            {
+                response = _requests.DeleteRequest(String.Format(_deleteProjectResource, project.id), _headers);
                 Debug.WriteLine("Deleted project:  " + response.Content);
+            }
             else
-                _dbClient.DeleteProjectInDB(projectId);
+                _dbClient.DeleteProjectInDB(project.id);
         }
 
         public void ReassignSbProjectToManager(CreatedProject project)
         {
             string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/ReassignToManager.json");
-            _assignSbProject(project, _reassignSbProjectToManagerResource,json);
+            assignProject(project, _reassignSbProjectToManagerResource,json);
         }
 
         public void UnassignProjectFromManager(CreatedProject project)
         {
-            _unassignProject(project, _unassignSbProjectFromManagerResource);
+            unassignProject(project, _unassignSbProjectFromManagerResource);
         }
     }
 }
