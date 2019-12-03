@@ -122,10 +122,11 @@ namespace RF_autotest.Clients
             {
                 json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/GenerateReportPaymentProject.json");
             }
-            Thread.Sleep(2000);
+            
             var response= _requests.PostRequest(String.Format(_generateReportResource, project.id), json, _headers);
-            Debug.WriteLine("Generate report: " + response.IsSuccessful + '\n');
             Thread.Sleep(2000);
+            response = _requests.PostRequest(String.Format(_generateReportResource, project.id), json, _headers);
+            Debug.WriteLine("Generate report: " + response.IsSuccessful + '\n');
             _waitGenerationReportSBproject(project);
         }
 
