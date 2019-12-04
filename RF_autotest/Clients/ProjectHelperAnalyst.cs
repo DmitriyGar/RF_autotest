@@ -64,7 +64,39 @@ namespace RF_autotest.Clients
             var response = _requests.PostRequest(_createProjectResource, json, _headers);
             Debug.WriteLine("Creating response:  " + response.StatusCode + '\n');
             var project=JsonConvert.DeserializeObject<CreatedProject>(response.Content);
-            waitChangingWorkflowSubStep(getProjectInfo(project.id), null, "pending_calculation");
+            waitChangingWorkflowSubStep(getProjectInfo(project), null, "pending_calculation");
+            return project;
+        }
+
+        public CreatedProject CreateSbFullRecalculationProject(CreatedProject parentProject)
+        {
+            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/CreateFullProject.json");
+            var full = JsonConvert.DeserializeObject<CreateFullProject>(json);
+            full.parent_project_uuid = parentProject.id;
+            full.project_name="Full Recalculation of "+parentProject.project_name;
+            full.project_type = parentProject.project_type + "_recalculation";
+            json = JsonConvert.SerializeObject(full);
+            Debug.WriteLine("json: " + json);
+            var response = _requests.PostRequest(_createProjectResource, json, _headers);
+            Debug.WriteLine("Creating :  " + response.IsSuccessful + '\n');
+            var project = JsonConvert.DeserializeObject<CreatedProject>(response.Content);
+            waitChangingWorkflowSubStep(getProjectInfo(project), null, "pending_calculation");
+            return project;
+        }
+
+        public CreatedProject CreateSbFullReversalProject(CreatedProject parentProject)
+        {
+            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/CreateFullProject.json");
+            var full = JsonConvert.DeserializeObject<CreateFullProject>(json);
+            full.parent_project_uuid = parentProject.id;
+            full.project_name = "Full Reversal of " + parentProject.project_name;
+            full.project_type = parentProject.project_type + "_reversal";
+            Debug.WriteLine("json: " + json);
+            json = JsonConvert.SerializeObject(full);
+            var response = _requests.PostRequest(_createProjectResource, json, _headers);
+            Debug.WriteLine("Creating :  " + response.IsSuccessful + '\n');
+            var project = JsonConvert.DeserializeObject<CreatedProject>(response.Content);
+            waitChangingWorkflowSubStep(getProjectInfo(project), null, "pending_calculation");
             return project;
         }
 
@@ -74,29 +106,29 @@ namespace RF_autotest.Clients
             var response = _requests.PostRequest(_createProjectResource, json, _headers);
             Debug.WriteLine("Creating response:  " + response.StatusCode + '\n');
             var project = JsonConvert.DeserializeObject<CreatedProject>(response.Content);
-            waitChangingWorkflowSubStep(getProjectInfo(project.id), null, "add_payments");
+            waitChangingWorkflowSubStep(getProjectInfo(project), null, "add_payments");
             return project;
         }
 
         public void AssignProject(CreatedProject project)
         {
-            if (GetProjectInfo(project.id).project_type == "sb_rebate")
+            if (GetProjectInfo(project).project_type != "sb_rebate_payments")
             { assignProject(project, _assignSbProjectResource); }
-            else if (GetProjectInfo(project.id).project_type == "sb_rebate_payments")
+            else if (GetProjectInfo(project).project_type == "sb_rebate_payments")
             { assignProject(project, _assignPaymentProjectResource); }
         }
 
         public void UnassignProject(CreatedProject project)
         {
-            if (GetProjectInfo(project.id).project_type == "sb_rebate")
+            if (GetProjectInfo(project).project_type != "sb_rebate_payments")
             { unassignProject(project, _unassignSbProjectResource); }
-            else if (GetProjectInfo(project.id).project_type == "sb_rebate_payments")
+            else if (GetProjectInfo(project).project_type == "sb_rebate_payments")
             { unassignProject(project, _unassignPaymentProjectResource); }
         }
 
-        public CreatedProject GetProjectInfo(string projectId)
+        public CreatedProject GetProjectInfo(CreatedProject project)
         {
-            return getProjectInfo(projectId);
+            return getProjectInfo(project);
         }
 
         public void CalculateSBproject(CreatedProject project)
@@ -105,13 +137,13 @@ namespace RF_autotest.Clients
             setProjectTypeHeaders(project);
             var response = _requests.PutRequest(String.Format(_calculateSbProjectResource, project.id), json, _headers);
             Debug.WriteLine("Start calculating: " + response.IsSuccessful + '\n');
-            waitChangingWorkflowSubStep(GetProjectInfo(project.id),"pending_calculation", "calculating");
+            waitChangingWorkflowSubStep(GetProjectInfo(project),"pending_calculation", "calculating");
            
         }
         public void WaitCalculatingSBproject(CreatedProject project)
         {
-            waitChangingWorkflowSubStep(GetProjectInfo(project.id), "calculating", "adjustments");
-            project=GetProjectInfo(project.id);
+            waitChangingWorkflowSubStep(GetProjectInfo(project), "calculating", "adjustments");
+            project=GetProjectInfo(project);
             Debug.WriteLine("Calculation finished. Sub-step: " + project.workflow_substep[0]);
             Debug.WriteLine("Total amount: " + project.additional_attributes.total_amount + '\n');          
         }
@@ -132,15 +164,15 @@ namespace RF_autotest.Clients
             IRestResponse response =new RestResponse();
             string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/SendToManager.json");
             setProjectTypeHeaders(project);
-            if (GetProjectInfo(project.id).project_type == "sb_rebate")
+            if (GetProjectInfo(project).project_type != "sb_rebate_payments")
             {
                 response = _requests.PutRequest(String.Format(_sendSBProjectToManagerResource, project.id), json, _headers);
-                waitChangingWorkflowSubStep(GetProjectInfo(project.id), "adjustments", "manager_review");
+                waitChangingWorkflowSubStep(GetProjectInfo(project), "adjustments", "manager_review");
             }
-            else if (GetProjectInfo(project.id).project_type == "sb_rebate_payments")
+            else if (GetProjectInfo(project).project_type == "sb_rebate_payments")
             {
                 response = _requests.PutRequest(String.Format(_sendPaymentProjectToManagerResource, project.id), json, _headers);
-                waitChangingWorkflowSubStep(GetProjectInfo(project.id), "add_payments", "manager_review");
+                waitChangingWorkflowSubStep(GetProjectInfo(project), "add_payments", "manager_review");
             }
             Debug.WriteLine("Send project to Manager: " + response.IsSuccessful + '\n');
             
@@ -172,7 +204,7 @@ namespace RF_autotest.Clients
             var response = _requests.PutRequest(String.Format(_approveSbProjectByClientResource, project.id), json, _headers);
             Debug.WriteLine("Approve SB project by Client: " + response.IsSuccessful + '\n');
 
-                waitChangingWorkflowSubStep(GetProjectInfo(project.id), "final_review", "manual_payment");
+                waitChangingWorkflowSubStep(GetProjectInfo(project), "final_review", "manual_payment");
             
         }
         
@@ -232,7 +264,7 @@ namespace RF_autotest.Clients
         {
             string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/ManualPayments.json");
             setProjectTypeHeaders(project);
-            if (GetProjectInfo(project.id).project_type == "sb_rebate")
+            if (GetProjectInfo(project).project_type != "sb_rebate_payments")
             {
                 foreach (Payments pay in GetSbPayments(project))
                 {
@@ -240,7 +272,7 @@ namespace RF_autotest.Clients
                     Debug.WriteLine("Enter payment details SB: " + response.IsSuccessful + '\n');
                 }
             }
-            else if (GetProjectInfo(project.id).project_type == "sb_rebate_payments")
+            else if (GetProjectInfo(project).project_type == "sb_rebate_payments")
             {
                 foreach (PaymentsPayment pay in _getPaymentPayments(project))
                 {
@@ -261,7 +293,7 @@ namespace RF_autotest.Clients
             {
                 while (pay.check_number==null&&pay.check_date==null&&pay.paid_amount==null)
                 {
-                    project = getProjectInfo(project.id);
+                    project = getProjectInfo(project);
                     if (pay.check_number != null && pay.check_date != null && pay.paid_amount != null)
                         { break; }
                     else if (Convert.ToUInt32(stopTimer.ElapsedMilliseconds) > timer)
@@ -281,7 +313,7 @@ namespace RF_autotest.Clients
             string json = JsonConvert.SerializeObject(close);
             setProjectTypeHeaders(project);
             var response = _requests.PutRequest(String.Format(_closeSbProjectResource, project.id),json, _headers);
-            waitChangingWorkflowSubStep(GetProjectInfo(project.id), "manual_payment", null);
+            waitChangingWorkflowSubStep(GetProjectInfo(project), "manual_payment", null);
             Debug.WriteLine("Close SB project: " + response.IsSuccessful + '\n');
         }
 
