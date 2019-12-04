@@ -60,8 +60,7 @@ namespace RF_autotest.Clients
 
         protected void unassignProject(CreatedProject project, string resourse, [Optional] string body)
         {
-            if (!_headers.ContainsKey("X-Project-Type"))
-                _headers.Add("X-Project-Type", project.project_type);
+            setProjectTypeHeaders(project);
             var response = _requests.PutRequest(String.Format(resourse, project.id), body, _headers);
             _waitForAssignProject(project, false);
             Debug.WriteLine("Unassign project: " + response.Content + '\n');
@@ -75,23 +74,24 @@ namespace RF_autotest.Clients
             if (assign == true) { 
                 while (project.assignee == null )
                 {
-                    project = getProjectInfo(project.id);
+                    project = getProjectInfo(project);
                     if (Convert.ToInt32(stopTimer.ElapsedMilliseconds) > timer) break;
                 }
             } else
             {
                 while (project.assignee != null)
                 {
-                    project = getProjectInfo(project.id);
+                    project = getProjectInfo(project);
                     if (Convert.ToInt32(stopTimer.ElapsedMilliseconds) > timer) break;
                 }
             }
             stopTimer.Stop();
         }
 
-        protected CreatedProject getProjectInfo(string projectId)
+        protected CreatedProject getProjectInfo(CreatedProject project)
         {
-            var project = JsonConvert.DeserializeObject<CreatedProject>(_requests.GetRequest(String.Format(_getProjectInfoResource, projectId), _headers).Content);
+            setProjectTypeHeaders(project);
+            project = JsonConvert.DeserializeObject<CreatedProject>(_requests.GetRequest(String.Format(_getProjectInfoResource, project.id), _headers).Content);
             return project;
         }
 
@@ -114,7 +114,7 @@ namespace RF_autotest.Clients
         protected void generateReport(CreatedProject project)
         {
             string json="";
-            if (project.project_type == "sb_rebate")
+            if (project.project_type != "sb_rebate_payments")
             {
                 json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/GenerateReportSBProject.json");
             }
@@ -122,27 +122,30 @@ namespace RF_autotest.Clients
             {
                 json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/GenerateReportPaymentProject.json");
             }
-            
-            var response= _requests.PostRequest(String.Format(_generateReportResource, project.id), json, _headers);
-            Thread.Sleep(2000);
-            response = _requests.PostRequest(String.Format(_generateReportResource, project.id), json, _headers);
-            Debug.WriteLine("Generate report: " + response.IsSuccessful + '\n');
+            if (_headers.ContainsKey("X-Project-Type"))
+                _headers.Remove("X-Project-Type");
+            var  response = _requests.PostRequest(String.Format(_generateReportResource, project.id), json, _headers);
+                Debug.WriteLine("Generate report: " + response.StatusCode+"/ "+ response.Content);
             _waitGenerationReportSBproject(project);
         }
 
         private IRestResponse _waitGenerationReportSBproject(CreatedProject project)
         {
             _report = JsonConvert.DeserializeObject<List<ReportsInfo>>(getReportsInfo(project.id).Content);
-            int timer = 360000;
+            int timer = 300000;
+            
             Stopwatch stopTimer = Stopwatch.StartNew();
             stopTimer.Start();
             Debug.WriteLine("Report generating...: "+'\n');
-            while (_report.Count!=1)
+            while (_report.Count == 0)
             {
                 _report = JsonConvert.DeserializeObject<List<ReportsInfo>>(getReportsInfo(project.id).Content);
-                if (Convert.ToUInt32(stopTimer.ElapsedMilliseconds) > timer) break;
+                if (Convert.ToUInt32(stopTimer.ElapsedMilliseconds) > timer)
+                {
+                    Debug.WriteLine("ERROR: Report wasn't generated");
+                    break;
+                }
             }
-            Debug.WriteLine("Report generated: " + _report.FirstOrDefault().report_type + '\n');
             var response = getReportsInfo(project.id);
             return response;
         }
@@ -165,10 +168,9 @@ namespace RF_autotest.Clients
             stopTimer.Start();
             if (expected != null)
             {
-                
                 while (project.workflow_substep[0] != expected)
                 {
-                    project = getProjectInfo(project.id);
+                    project = getProjectInfo(project);
                     if (project.workflow_substep[0] == expected) { break; }
                     else if (Convert.ToUInt32(stopTimer.ElapsedMilliseconds) > timer)
                     {
@@ -181,7 +183,7 @@ namespace RF_autotest.Clients
             {
                 while (project.workflow_substep!=null)
                 {
-                    project = getProjectInfo(project.id);
+                    project = getProjectInfo(project);
                     if (project.workflow_substep==null) { break; }
                     else if (Convert.ToUInt32(stopTimer.ElapsedMilliseconds) > timer)
                     {

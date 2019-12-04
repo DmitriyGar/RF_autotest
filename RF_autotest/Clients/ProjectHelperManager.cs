@@ -32,11 +32,7 @@ namespace RF_autotest.Clients
             _headers.Add("Authorization", "SessionID " + _session_id);
         }
 
-        public CreatedProject GetProjectInfo(string projectId)
-        {
-            return getProjectInfo(projectId);
-        }
-
+        
         public void AssignSbProject(CreatedProject project)
         {
             assignProject(project, _assignSbProjectResource);
@@ -64,12 +60,12 @@ namespace RF_autotest.Clients
             setProjectTypeHeaders(project);
             var response = _requests.PutRequest(String.Format(_approveSBProjectByManagerResource, project.id), json, _headers);
             Debug.WriteLine("Approve SB project by Manager: " + response.IsSuccessful + '\n');
-            if ((GetProjectInfo(project.id).project_type == "sb_rebate" && IsPaymentPackageOn() == false)
-                || (GetProjectInfo(project.id).project_type == "sb_rebate_payments")){
-                waitChangingWorkflowSubStep(GetProjectInfo(project.id), "manager_review", "final_review");
+            if ((getProjectInfo(project).project_type != "sb_rebate_payments" && IsPaymentPackageOn() == false)
+                || (getProjectInfo(project).project_type == "sb_rebate_payments")){
+                waitChangingWorkflowSubStep(getProjectInfo(project), "manager_review", "final_review");
             }
-            else if (GetProjectInfo(project.id).project_type == "sb_rebate" && IsPaymentPackageOn() == true)
-                waitChangingWorkflowSubStep(GetProjectInfo(project.id), "manager_review", "waiting_for_payments");
+            else if (getProjectInfo(project).project_type != "sb_rebate_payments" && IsPaymentPackageOn() == true)
+                waitChangingWorkflowSubStep(getProjectInfo(project), "manager_review", "waiting_for_payments");
             return response;
         }
 

@@ -35,13 +35,16 @@ namespace RF_autotest.Clients
         public void DeleteProject(CreatedProject project)
         {
             IRestResponse response = new RestResponse();
-            if (project.workflow_step != null && project.workflow_step != "payment" && project.workflow_step != "calculating"&& project.workflow_step !="final_review")
+            if (project.id != null)
             {
-                response = _requests.DeleteRequest(String.Format(_deleteProjectResource, project.id), _headers);
-                Debug.WriteLine("Deleted project:  " + response.Content);
+                if (project.workflow_step != null && project.workflow_step != "payment" && project.workflow_step != "calculating" && project.workflow_step != "final_review")
+                {
+                    response = _requests.DeleteRequest(String.Format(_deleteProjectResource, project.id), _headers);
+                    Debug.WriteLine("Deleted project:  " + response.Content);
+                }
+                else
+                    _dbClient.DeleteProjectInDB(project.id);
             }
-            else
-                _dbClient.DeleteProjectInDB(project.id);
         }
 
         public void ReassignSbProjectToManager(CreatedProject project)
