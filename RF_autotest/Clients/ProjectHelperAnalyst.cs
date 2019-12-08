@@ -18,7 +18,10 @@ namespace RF_autotest.Clients
         private readonly string _getUnassignedProjectsResource = "/rfprojects/v1/unassigned";
         private readonly string _createProjectResource ="/rfprojects/v1/projects"; //post
         private readonly string _assignSbProjectResource = @"/rfworkflow/v1/workflows/{0}/pending_calculation/assign";//put
+        private readonly string _assignSbPartialProjectResource = @"/rfworkflow/v1/workflows/{0}/project_setup/assign"; //put
         private readonly string _unassignSbProjectResource = @"/rfworkflow/v1/workflows/{0}/pending_calculation/unassign";//put
+        private readonly string _setupPgPartialProjectResource = @"/rfprojects/v1/projects/{0}/recalculation-entities"; //post
+        private readonly string _finishSetupPartialProjectResource = @"/rfworkflow/v1/workflows/{0}/project_setup/complete";//put
         private readonly string _calculateSbProjectResource = @"/rfworkflow/v1/workflows/{0}/pending_calculation/complete"; //put
         private readonly string _sendSBProjectToManagerResource = @"/rfworkflow/v1/workflows/{0}/adjustments/complete";//put
         private readonly string _approveSbProjectByClientResource = @"/rfworkflow/v1/workflows/{0}/final_review/complete"; //put
@@ -70,7 +73,7 @@ namespace RF_autotest.Clients
 
         public CreatedProject CreateSbFullRecalculationProject(CreatedProject parentProject)
         {
-            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/CreateFullProject.json");
+            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/CreateFullPartialProject.json");
             var full = JsonConvert.DeserializeObject<CreateFullProject>(json);
             full.parent_project_uuid = parentProject.id;
             full.project_name="Full Recalculation of "+parentProject.project_name;
@@ -86,7 +89,7 @@ namespace RF_autotest.Clients
 
         public CreatedProject CreateSbFullReversalProject(CreatedProject parentProject)
         {
-            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/CreateFullProject.json");
+            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/CreateFullPartialProject.json");
             var full = JsonConvert.DeserializeObject<CreateFullProject>(json);
             full.parent_project_uuid = parentProject.id;
             full.project_name = "Full Reversal of " + parentProject.project_name;
@@ -97,6 +100,36 @@ namespace RF_autotest.Clients
             Debug.WriteLine("Creating :  " + response.IsSuccessful + '\n');
             var project = JsonConvert.DeserializeObject<CreatedProject>(response.Content);
             waitChangingWorkflowSubStep(getProjectInfo(project), null, "pending_calculation");
+            return project;
+        }
+
+        public CreatedProject CreatePartialRecalculationProject(CreatedProject parentProject)
+        {
+            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/CreateFullPartialProject.json");
+            var full = JsonConvert.DeserializeObject<CreateFullProject>(json);
+            full.parent_project_uuid = parentProject.id;
+            full.project_name = "Partial Recalculation of " + parentProject.project_name;
+            full.project_type = parentProject.project_type + "_partial_recalculation";
+            json = JsonConvert.SerializeObject(full);
+            var response = _requests.PostRequest(_createProjectResource, json, _headers);
+            Debug.WriteLine("Creating :  " + response.IsSuccessful + '\n');
+            var project = JsonConvert.DeserializeObject<CreatedProject>(response.Content);
+            waitChangingWorkflowSubStep(getProjectInfo(project), null, "project_setup");
+            return project;
+        }
+
+        public CreatedProject CreatePartialReversalProject(CreatedProject parentProject)
+        {
+            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/CreateFullPartialProject.json");
+            var full = JsonConvert.DeserializeObject<CreateFullProject>(json);
+            full.parent_project_uuid = parentProject.id;
+            full.project_name = "Partial Reversal of " + parentProject.project_name;
+            full.project_type = parentProject.project_type + "_partial_reversal";
+            json = JsonConvert.SerializeObject(full);
+            var response = _requests.PostRequest(_createProjectResource, json, _headers);
+            Debug.WriteLine("Creating :  " + response.IsSuccessful + '\n');
+            var project = JsonConvert.DeserializeObject<CreatedProject>(response.Content);
+            waitChangingWorkflowSubStep(getProjectInfo(project), null, "project_setup");
             return project;
         }
 
@@ -113,7 +146,12 @@ namespace RF_autotest.Clients
         public void AssignProject(CreatedProject project)
         {
             if (GetProjectInfo(project).project_type != "sb_rebate_payments")
-            { assignProject(project, _assignSbProjectResource); }
+            {
+                if (GetProjectInfo(project).project_type == "sb_rebate_partial_recalculation"|| GetProjectInfo(project).project_type == "sb_rebate_partial_reversal")
+                    assignProject(project,_assignSbPartialProjectResource);
+                else 
+                    assignProject(project, _assignSbProjectResource);
+            }
             else if (GetProjectInfo(project).project_type == "sb_rebate_payments")
             { assignProject(project, _assignPaymentProjectResource); }
         }
@@ -121,7 +159,12 @@ namespace RF_autotest.Clients
         public void UnassignProject(CreatedProject project)
         {
             if (GetProjectInfo(project).project_type != "sb_rebate_payments")
-            { unassignProject(project, _unassignSbProjectResource); }
+            {
+                if (GetProjectInfo(project).project_type == "sb_rebate_partial_recalculation" || GetProjectInfo(project).project_type == "sb_rebate_partial_reversal")
+                    unassignProject(project, _assignSbPartialProjectResource);
+                else
+                    unassignProject(project, _unassignSbProjectResource);
+            }
             else if (GetProjectInfo(project).project_type == "sb_rebate_payments")
             { unassignProject(project, _unassignPaymentProjectResource); }
         }
@@ -207,7 +250,28 @@ namespace RF_autotest.Clients
                 waitChangingWorkflowSubStep(GetProjectInfo(project), "final_review", "manual_payment");
             
         }
-        
+
+        public void SetupPartialProject(CreatedProject partialProject, CreatedProject parentProject)
+        {
+            SetupPartial setup = new SetupPartial();
+            setup.evaluation_bu_uuids = new List<string>();
+            foreach (Payments pay in GetSbPayments(parentProject))
+                setup.evaluation_bu_uuids.Add(pay.pay_to_bu);
+            setup.calculation_entity_uuid = parentProject.programs.price_group_uuid_list[0];
+            string json = JsonConvert.SerializeObject(setup);
+            setProjectTypeHeaders(partialProject);
+            var response = _requests.PostRequest(String.Format(_setupPgPartialProjectResource, partialProject.id), json, _headers);
+            Debug.WriteLine("Setup partial project: " + response.IsSuccessful);
+            dynamic finish = new ExpandoObject();
+            finish.action = "finish_setup";
+            json = JsonConvert.SerializeObject(finish);
+            setProjectTypeHeaders(partialProject);
+            response = _requests.PutRequest(String.Format(_finishSetupPartialProjectResource, partialProject.id), json, _headers);
+            Debug.WriteLine("Finish setup: " + response.IsSuccessful + '\n');
+            waitChangingWorkflowSubStep(GetProjectInfo(partialProject), "project_setup", "pending_calculation");
+            
+        }
+
         private List<PaymentPackage> _getPaymentsPaymentPackage(CreatedProject project)
         {
             

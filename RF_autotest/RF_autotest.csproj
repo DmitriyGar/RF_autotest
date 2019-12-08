@@ -96,6 +96,7 @@
     <Compile Include="Models\SbProject\CreateProject.cs" />
     <Compile Include="Models\Login.cs" />
     <Compile Include="Models\SbProject\ReportsInfo.cs" />
+    <Compile Include="Models\SbProject\SetupPartial.cs" />
     <Compile Include="Models\SessionIdentification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Selenium.cs" />
@@ -119,7 +120,7 @@
     <None Include="Config\CreatedProject.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Config\CreateFullProject.json">
+    <None Include="Config\CreateFullPartialProject.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Config\CreatePaymentProject.json">

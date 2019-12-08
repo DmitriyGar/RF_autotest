@@ -9,7 +9,7 @@ namespace RF_autotest.Models
     public class Programs
     {
         public IList<string> program_uuid_list { get; set; }
-        public IList<object> price_group_uuid_list { get; set; }
+        public IList<string> price_group_uuid_list { get; set; }
     }
 
     public class DataSource
