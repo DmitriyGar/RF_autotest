@@ -177,6 +177,11 @@ namespace RF_autotest.Clients
                         Debug.WriteLine("ERROR: Substep wasn't changed. " + '\n');
                         break;
                     }
+                    if (project.workflow_substep[0] == "calculating_fail")
+                    {
+                        Debug.WriteLine("ERROR: Calculating failed. " + '\n');
+                        break;
+                    }
                 }
             }
             else

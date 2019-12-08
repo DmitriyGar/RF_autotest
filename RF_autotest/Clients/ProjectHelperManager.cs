@@ -13,9 +13,7 @@ namespace RF_autotest.Clients
     { 
         private readonly string _assignSbProjectResource = @"/rfworkflow/v1/workflows/{0}/manager_review/assign";//put
         private readonly string _unassignSbProjectResource = @"/rfworkflow/v1/workflows/{0}/manager_review/unassign";//put
-        private readonly string _assignPaymentProjectResource = "/rfworkflow/v1/workflows/{0}/add_payments/assign";//put
         private readonly string _approveSBProjectByManagerResource = @"/rfworkflow/v1/workflows/{0}/manager_review/complete";//put
-        private readonly string _approvePaymentProjectByManagerResource = "/rfworkflow/v1/workflows/{0}/add_payments/complete";//put
         private string _session_id;
 
         public ProjectHelperManager() {
@@ -49,11 +47,6 @@ namespace RF_autotest.Clients
             generateReport(project);
         }
 
-        public IRestResponse GetReportsInfo(string projectId)
-        {
-            return getReportsInfo(projectId);
-        }
-
         public IRestResponse ApproveProjectByManager(CreatedProject project)
         {
             string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/Config/ApproveByClient.json");
@@ -72,6 +65,7 @@ namespace RF_autotest.Clients
         
         void RejectProjectByManager()
         {
+            //TODO
         }
 
     }

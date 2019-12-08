@@ -17,6 +17,8 @@ namespace RF_autotest.Tests
         private ProjectHelperManager _projectHelperManager;
         private CreatedProject _sbProject;
         private CreatedProject _sbFullRecalculationProject;
+        private CreatedProject _sbPartialRecalculationProject;
+        private CreatedProject _sbPartialReversalProject;
         private CreatedProject _sbFullReversalProject;
         private CreatedProject _paymentProject;
         private List<ReportsInfo> _generatedReports;
@@ -29,6 +31,8 @@ namespace RF_autotest.Tests
             _projectHelperManager = new ProjectHelperManager();
             _sbProject = new CreatedProject();
             _sbFullRecalculationProject = new CreatedProject();
+            _sbPartialRecalculationProject = new CreatedProject();
+            _sbPartialReversalProject = new CreatedProject();
             _sbFullReversalProject = new CreatedProject();
             _generatedReports = new List<ReportsInfo>();
             _paymentProject = new CreatedProject();
@@ -192,7 +196,7 @@ namespace RF_autotest.Tests
             #endregion
 
             #region Assign Payment-Project to Analyst
-            Debug.WriteLine("ASSIGNING OF Payment-PROJECT BY ANALYST ");
+            Debug.WriteLine("ASSIGNING OF PAYMENT-PROJECT BY ANALYST ");
             _projectHelperAnalyst.AssignProject(_paymentProject);
             _paymentProject = _projectHelperAnalyst.GetProjectInfo(_paymentProject);
             Assert.That(_paymentProject.assignee, Is.EqualTo("rf_analyst@cis-cust.lan"));
@@ -324,7 +328,7 @@ namespace RF_autotest.Tests
             #endregion
 
             #region Assign Full Recalculation Sb-Project to Analyst
-            Debug.WriteLine("ASSIGNING OF PROJECT BY ANALYST ");
+            Debug.WriteLine("ASSIGNING OF FULL RECALCULATION PROJECT BY ANALYST ");
             _projectHelperAnalyst.AssignProject(_sbFullRecalculationProject);
             _sbFullRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbFullRecalculationProject);
             Assert.That(_sbFullRecalculationProject.assignee, Is.EqualTo("rf_analyst@cis-cust.lan"));
@@ -332,7 +336,7 @@ namespace RF_autotest.Tests
             #endregion
 
             #region Calculate Full Recalculation Sb-Project
-            Debug.WriteLine("CALCULATING OF PROJECT");
+            Debug.WriteLine("CALCULATING OF FULL RECALCULATION PROJECT");
             _projectHelperAnalyst.CalculateSBproject(_sbFullRecalculationProject);
             _sbFullRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbFullRecalculationProject);
             Assert.That(_sbFullRecalculationProject.workflow_substep[0], Is.EqualTo("calculating"));
@@ -350,14 +354,14 @@ namespace RF_autotest.Tests
             #endregion
 
             #region Send Full Recalculation Sb-Project to manager
-            Debug.WriteLine("SEND PROJECT TO MANAGER");
+            Debug.WriteLine("SEND FULL RECALCULATION PROJECT TO MANAGER");
             _projectHelperAnalyst.SendProjectToManager(_sbFullRecalculationProject);
             _sbFullRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbFullRecalculationProject);
             Assert.That(_sbFullRecalculationProject.workflow_substep[0], Is.EqualTo("manager_review"));
             #endregion
 
             #region Assign Full Recalculation Sb-Project by Manager
-            Debug.WriteLine("ASSIGNING OF PROJECT BY MANAGER");
+            Debug.WriteLine("ASSIGNING OF FULL RECALCULATION PROJECT BY MANAGER");
             _projectHelperManager.AssignSbProject(_sbFullRecalculationProject);
             _sbFullRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbFullRecalculationProject);
             Assert.That(_sbFullRecalculationProject.assignee, Is.EqualTo("rf_manager@cis-cust.lan"));
@@ -365,7 +369,7 @@ namespace RF_autotest.Tests
             #endregion
 
             #region Unassign  Full Recalculation Project by Admin
-            Debug.WriteLine("UNASSIGNING OF PROJECT BY ADMIN");
+            Debug.WriteLine("UNASSIGNING OF FULL RECALCULATION PROJECT BY ADMIN");
             _projectHelperAdmin.UnassignProjectFromManager(_sbFullRecalculationProject);
             _sbFullRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbFullRecalculationProject);
             Assert.That(_sbFullRecalculationProject.assignee, Is.Null);
@@ -373,7 +377,7 @@ namespace RF_autotest.Tests
             #endregion
 
             #region Reassign  Full Recalculation Project to Manager
-            Debug.WriteLine("REASSIGNING OF PROJECT TO MANAGER");
+            Debug.WriteLine("REASSIGNING OF FULL RECALCULATION PROJECT TO MANAGER");
             _projectHelperAdmin.ReassignSbProjectToManager(_sbFullRecalculationProject);
             _sbFullRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbFullRecalculationProject);
             Assert.That(_sbFullRecalculationProject.assignee, Is.EqualTo("rf_manager@cis-cust.lan"));
@@ -382,7 +386,7 @@ namespace RF_autotest.Tests
             #endregion
 
             #region Approve Full Recalculation Sb-Project by Manager
-            Debug.WriteLine("APPROVE PROJECT BY MANAGER");
+            Debug.WriteLine("APPROVE FULL RECALCULATION PROJECT BY MANAGER");
             _projectHelperAnalyst.PaymentsPackageOff();
             _projectHelperManager.ApproveProjectByManager(_sbFullRecalculationProject);
             _sbFullRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbFullRecalculationProject);
@@ -391,7 +395,7 @@ namespace RF_autotest.Tests
             #endregion
 
             #region Approve Full Recalculation SbProject by Client
-            Debug.WriteLine("APPROVE PROJECT BY CLIENT");
+            Debug.WriteLine("APPROVE FULL RECALCULATION PROJECT BY CLIENT");
             _projectHelperAnalyst.AproveProjectByClient(_sbFullRecalculationProject);
             _sbFullRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbFullRecalculationProject);
             Assert.That(_sbFullRecalculationProject.workflow_step, Is.EqualTo("payment"));
@@ -400,7 +404,7 @@ namespace RF_autotest.Tests
             #endregion
 
             #region Enter manual payments and close project
-            Debug.WriteLine("ENTER MANUAL PAYMENTS AND CLOSE PROJECT");
+            Debug.WriteLine("ENTER MANUAL PAYMENTS AND CLOSE FULL RECALCULATION PROJECT");
             _projectHelperAnalyst.EnterPaymentDetails(_sbFullRecalculationProject);
             _sbFullRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbFullRecalculationProject);
             _projectHelperAnalyst.CloseProjectWithPaymentDetails(_sbFullRecalculationProject);
@@ -455,7 +459,7 @@ namespace RF_autotest.Tests
             #endregion
 
             #region Assign Full Reversal Sb-Project to Analyst
-            Debug.WriteLine("ASSIGNING OF PROJECT BY ANALYST ");
+            Debug.WriteLine("ASSIGNING OF FULL REVERSAL PROJECT BY ANALYST ");
             _projectHelperAnalyst.AssignProject(_sbFullReversalProject);
             _sbFullReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbFullReversalProject);
             Assert.That(_sbFullReversalProject.assignee, Is.EqualTo("rf_analyst@cis-cust.lan"));
@@ -463,7 +467,7 @@ namespace RF_autotest.Tests
             #endregion
 
             #region Calculate Full Reversal Sb-Project
-            Debug.WriteLine("CALCULATING OF PROJECT");
+            Debug.WriteLine("CALCULATING OF FULL REVERSAL PROJECT");
             _projectHelperAnalyst.CalculateSBproject(_sbFullReversalProject);
             _sbFullReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbFullReversalProject);
             Assert.That(_sbFullReversalProject.workflow_substep[0], Is.EqualTo("calculating"));
@@ -481,14 +485,14 @@ namespace RF_autotest.Tests
             #endregion
 
             #region Send Full Reversal Sb-Project to manager
-            Debug.WriteLine("SEND PROJECT TO MANAGER");
+            Debug.WriteLine("SEND FULL REVERSAL PROJECT TO MANAGER");
             _projectHelperAnalyst.SendProjectToManager(_sbFullReversalProject);
             _sbFullReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbFullReversalProject);
             Assert.That(_sbFullReversalProject.workflow_substep[0], Is.EqualTo("manager_review"));
             #endregion
 
             #region Assign Full Reversal Sb-Project by Manager
-            Debug.WriteLine("ASSIGNING OF PROJECT BY MANAGER");
+            Debug.WriteLine("ASSIGNING OF FULL REVERSAL PROJECT BY MANAGER");
             _projectHelperManager.AssignSbProject(_sbFullReversalProject);
             _sbFullReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbFullReversalProject);
             Assert.That(_sbFullReversalProject.assignee, Is.EqualTo("rf_manager@cis-cust.lan"));
@@ -496,7 +500,7 @@ namespace RF_autotest.Tests
             #endregion
 
             #region Unassign Full Reversal Project by Admin
-            Debug.WriteLine("UNASSIGNING OF PAYMENT-PROJECT BY ADMIN");
+            Debug.WriteLine("UNASSIGNING OF FULL REVERSAL PAYMENT-PROJECT BY ADMIN");
             _projectHelperAdmin.UnassignProjectFromManager(_sbFullReversalProject);
             _sbFullReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbFullReversalProject);
             Assert.That(_sbFullReversalProject.assignee, Is.Null);
@@ -504,7 +508,7 @@ namespace RF_autotest.Tests
             #endregion
 
             #region Reassign Full Reversal Project to Manager
-            Debug.WriteLine("REASSIGNING OF PAYMENT-PROJECT TO MANAGER");
+            Debug.WriteLine("REASSIGNING OF FULL REVERSAL PAYMENT-PROJECT TO MANAGER");
             _projectHelperAdmin.ReassignSbProjectToManager(_sbFullReversalProject);
             _sbFullReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbFullReversalProject);
             Assert.That(_sbFullReversalProject.assignee, Is.EqualTo("rf_manager@cis-cust.lan"));
@@ -512,7 +516,7 @@ namespace RF_autotest.Tests
             #endregion
 
             #region Approve Full Reversal Sb-Project by Manager
-            Debug.WriteLine("APPROVE PROJECT BY MANAGER");
+            Debug.WriteLine("APPROVE FULL REVERSAL PROJECT BY MANAGER");
             _projectHelperAnalyst.PaymentsPackageOff();
             _projectHelperManager.ApproveProjectByManager(_sbFullReversalProject);
             _sbFullReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbFullReversalProject);
@@ -521,7 +525,7 @@ namespace RF_autotest.Tests
             #endregion
 
             #region Approve Full Reversal SbProject by Client
-            Debug.WriteLine("APPROVE PROJECT BY CLIENT");
+            Debug.WriteLine("APPROVE FULL REVERSAL PROJECT BY CLIENT");
             _projectHelperAnalyst.AproveProjectByClient(_sbFullReversalProject);
             _sbFullReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbFullReversalProject);
             Assert.That(_sbFullReversalProject.workflow_step, Is.EqualTo("payment"));
@@ -530,7 +534,7 @@ namespace RF_autotest.Tests
             #endregion
 
             #region Enter manual payments and close project
-            Debug.WriteLine("ENTER MANUAL PAYMENTS AND CLOSE PROJECT");
+            Debug.WriteLine("ENTER MANUAL PAYMENTS AND CLOSE FULL REVERSAL PROJECT");
             _projectHelperAnalyst.EnterPaymentDetails(_sbFullReversalProject);
             _sbFullReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbFullReversalProject);
             _projectHelperAnalyst.CloseProjectWithPaymentDetails(_sbFullReversalProject);
@@ -538,6 +542,286 @@ namespace RF_autotest.Tests
             Assert.That(_sbFullReversalProject.workflow_step, Is.Null);
             Assert.That(_sbFullReversalProject.is_closed);
             Assert.That(_sbFullReversalProject.assignee, Is.Null);
+            #endregion
+        }
+
+        [Test]
+        public void SmokeTestSbPartialRecalculationWorkflow()
+        {
+
+            #region Approve Sb-Project by Manager
+            Debug.WriteLine("APPROVE SB-PROJECT BY MANAGER");
+            _projectHelperAnalyst.PaymentsPackageOff();
+            _projectHelperManager.ApproveProjectByManager(_sbProject);
+            _sbProject = _projectHelperAnalyst.GetProjectInfo(_sbProject);
+            Assert.That(_sbProject.workflow_substep[0], Is.EqualTo("final_review"));
+            Assert.That(_sbProject.assignee, Is.Null);
+            #endregion
+
+            #region Approve SbProject by Client
+            Debug.WriteLine("APPROVE SB-PROJECT BY CLIENT");
+            _projectHelperAnalyst.AproveProjectByClient(_sbProject);
+            _sbProject = _projectHelperAnalyst.GetProjectInfo(_sbProject);
+            Assert.That(_sbProject.workflow_step, Is.EqualTo("payment"));
+            Assert.That(_sbProject.workflow_substep[0], Is.EqualTo("manual_payment"));
+            Assert.That(_sbProject.assignee, Is.EqualTo("rf_analyst@cis-cust.lan"));
+            #endregion
+
+            #region Enter manual payments and close project
+            Debug.WriteLine("ENTER MANUAL PAYMENTS AND CLOSE SB PROJECT");
+            _projectHelperAnalyst.EnterPaymentDetails(_sbProject);
+            _sbProject = _projectHelperAnalyst.GetProjectInfo(_sbProject);
+            _projectHelperAnalyst.CloseProjectWithPaymentDetails(_sbProject);
+            _sbProject = _projectHelperAnalyst.GetProjectInfo(_sbProject);
+            Assert.That(_sbProject.workflow_step, Is.Null);
+            Assert.That(_sbProject.is_closed);
+            Assert.That(_sbProject.assignee, Is.Null);
+            #endregion
+
+            #region Create Partial Recalculating SB-project 
+            Debug.WriteLine("*** CREATING OF PARTIAL RECALCULATION SB-PROJECT ***");
+            _sbPartialRecalculationProject = _projectHelperAnalyst.CreatePartialRecalculationProject(_sbProject);
+            Debug.WriteLine("Created project id: " + _sbPartialRecalculationProject.id+ '\n');
+            _projectHelperAnalyst.AssignProject(_sbPartialRecalculationProject);
+            Assert.That(_sbPartialRecalculationProject.workflow_substep[0], Is.EqualTo("project_setup"));
+            Assert.That(_sbPartialRecalculationProject.project_type, Is.EqualTo("sb_rebate_partial_recalculation"));
+            Assert.That(_sbPartialRecalculationProject.assignee, Is.Null);
+            #endregion
+
+            #region Assign Partial Recalculation Sb-Project to Analyst
+            Debug.WriteLine("ASSIGNING OF PARTIAL RECALCULATION PROJECT BY ANALYST ");
+            _projectHelperAnalyst.AssignProject(_sbPartialRecalculationProject);
+            _sbPartialRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialRecalculationProject);
+            Assert.That(_sbPartialRecalculationProject.assignee, Is.EqualTo("rf_analyst@cis-cust.lan"));
+            Assert.That(_sbPartialRecalculationProject.owners.FirstOrDefault().user, Is.EqualTo("rf_analyst@cis-cust.lan"));
+            #endregion
+
+            #region Setup Partial Recalculation Sb-Project to Analyst
+            Debug.WriteLine("PROJECT SETUP");
+            _projectHelperAnalyst.SetupPartialProject(_sbPartialRecalculationProject, _sbProject);
+            _sbPartialRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialRecalculationProject);
+            Assert.That(_sbPartialRecalculationProject.workflow_substep[0], Is.EqualTo("pending_calculation"));
+            Assert.That(_sbPartialRecalculationProject.arrangement_name, Is.EqualTo(_sbPartialRecalculationProject.arrangement_name));
+            Assert.That(_sbPartialRecalculationProject.owners.FirstOrDefault().user, Is.EqualTo("rf_analyst@cis-cust.lan"));
+            #endregion
+
+            #region Calculate Partial Recalculation Sb-Project
+            Debug.WriteLine("CALCULATING OF PARTIAL RECALCULATION PROJECT");
+            _projectHelperAnalyst.CalculateSBproject(_sbPartialRecalculationProject);
+            _sbPartialRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialRecalculationProject);
+            Assert.That(_sbPartialRecalculationProject.workflow_substep[0], Is.EqualTo("calculating"));
+            _projectHelperAnalyst.WaitCalculatingSBproject(_sbPartialRecalculationProject);
+            _sbPartialRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialRecalculationProject);
+            Assert.That(_sbPartialRecalculationProject.workflow_substep[0], Is.EqualTo("adjustments"));
+            Assert.That(_sbPartialRecalculationProject.additional_attributes.total_amount, Is.Not.Null);
+            #endregion
+
+            #region Generate Report for Partial Recalculation Sb-Project
+            Debug.WriteLine("GENERATING OF SAMMARY REPORT");
+            _projectHelperAnalyst.GenerateReport(_sbPartialRecalculationProject);
+            _generatedReports = _projectHelperAnalyst.GetReportsInfo(_sbPartialRecalculationProject.id);
+            Assert.That(_generatedReports.FirstOrDefault().report_type, Is.EqualTo("summary_by_evaluation_bu"));
+            #endregion
+
+            #region Send Partial Recalculation Sb-Project to manager
+            Debug.WriteLine("SEND PARTIAL RECALCULATION PROJECT TO MANAGER");
+            _projectHelperAnalyst.SendProjectToManager(_sbPartialRecalculationProject);
+            _sbPartialRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialRecalculationProject);
+            Assert.That(_sbPartialRecalculationProject.workflow_substep[0], Is.EqualTo("manager_review"));
+            #endregion
+
+            #region Assign Partial Recalculation Sb-Project by Manager
+            Debug.WriteLine("ASSIGNING OF PROJECT BY MANAGER");
+            _projectHelperManager.AssignSbProject(_sbPartialRecalculationProject);
+            _sbPartialRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialRecalculationProject);
+            Assert.That(_sbPartialRecalculationProject.assignee, Is.EqualTo("rf_manager@cis-cust.lan"));
+            Assert.That(_sbPartialRecalculationProject.owners[1].user, Is.EqualTo("rf_manager@cis-cust.lan"));
+            #endregion
+
+            #region Unassign Partial Recalculation Project by Admin
+            Debug.WriteLine("UNASSIGNING OF PARTIAL RECALCULATION PROJECT BY ADMIN");
+            _projectHelperAdmin.UnassignProjectFromManager(_sbPartialRecalculationProject);
+            _sbPartialRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialRecalculationProject);
+            Assert.That(_sbPartialRecalculationProject.assignee, Is.Null);
+            Assert.That(_sbPartialRecalculationProject.owners.Count == 1);
+            #endregion
+
+            #region Reassign Partial Recalculation Project to Manager
+            Debug.WriteLine("REASSIGNING OF PARTIAL RECALCULATION PROJECT TO MANAGER");
+            _projectHelperAdmin.ReassignSbProjectToManager(_sbPartialRecalculationProject);
+            _sbPartialRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialRecalculationProject);
+            Assert.That(_sbPartialRecalculationProject.assignee, Is.EqualTo("rf_manager@cis-cust.lan"));
+            Assert.That(_sbPartialRecalculationProject.owners[1].user, Is.EqualTo("rf_manager@cis-cust.lan"));
+
+            #endregion
+
+            #region Approve Partial Recalculation Sb-Project by Manager
+            Debug.WriteLine("APPROVE PARTIAL RECALCULATION PROJECT BY MANAGER");
+            _projectHelperAnalyst.PaymentsPackageOff();
+            _projectHelperManager.ApproveProjectByManager(_sbPartialRecalculationProject);
+            _sbPartialRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialRecalculationProject);
+            Assert.That(_sbPartialRecalculationProject.workflow_substep[0], Is.EqualTo("final_review"));
+            Assert.That(_sbPartialRecalculationProject.assignee, Is.Null);
+            #endregion
+
+            #region Approve Partial Recalculation SbProject by Client
+            Debug.WriteLine("APPROVE PARTIAL RECALCULATION PROJECT BY CLIENT");
+            _projectHelperAnalyst.AproveProjectByClient(_sbPartialRecalculationProject);
+            _sbPartialRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialRecalculationProject);
+            Assert.That(_sbPartialRecalculationProject.workflow_step, Is.EqualTo("payment"));
+            Assert.That(_sbPartialRecalculationProject.workflow_substep[0], Is.EqualTo("manual_payment"));
+            Assert.That(_sbPartialRecalculationProject.assignee, Is.EqualTo("rf_analyst@cis-cust.lan"));
+            #endregion
+
+            #region Enter manual payments and close project
+            Debug.WriteLine("ENTER MANUAL PAYMENTS AND CLOSE PARTIAL RECALCULATION PROJECT");
+            _projectHelperAnalyst.EnterPaymentDetails(_sbPartialRecalculationProject);
+            _sbPartialRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialRecalculationProject);
+            _projectHelperAnalyst.CloseProjectWithPaymentDetails(_sbPartialRecalculationProject);
+            _sbPartialRecalculationProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialRecalculationProject);
+            Assert.That(_sbPartialRecalculationProject.workflow_step, Is.Null);
+            Assert.That(_sbPartialRecalculationProject.is_closed);
+            Assert.That(_sbPartialRecalculationProject.assignee, Is.Null);
+            #endregion
+        }
+
+        [Test]
+        public void SmokeTestSbPartialReversalWorkflow()
+        {
+
+            #region Approve Sb-Project by Manager
+            Debug.WriteLine("APPROVE SB-PROJECT BY MANAGER");
+            _projectHelperAnalyst.PaymentsPackageOff();
+            _projectHelperManager.ApproveProjectByManager(_sbProject);
+            _sbProject = _projectHelperAnalyst.GetProjectInfo(_sbProject);
+            Assert.That(_sbProject.workflow_substep[0], Is.EqualTo("final_review"));
+            Assert.That(_sbProject.assignee, Is.Null);
+            #endregion
+
+            #region Approve SbProject by Client
+            Debug.WriteLine("APPROVE SB-PROJECT BY CLIENT");
+            _projectHelperAnalyst.AproveProjectByClient(_sbProject);
+            _sbProject = _projectHelperAnalyst.GetProjectInfo(_sbProject);
+            Assert.That(_sbProject.workflow_step, Is.EqualTo("payment"));
+            Assert.That(_sbProject.workflow_substep[0], Is.EqualTo("manual_payment"));
+            Assert.That(_sbProject.assignee, Is.EqualTo("rf_analyst@cis-cust.lan"));
+            #endregion
+
+            #region Enter manual payments and close project
+            Debug.WriteLine("ENTER MANUAL PAYMENTS AND CLOSE SB PROJECT");
+            _projectHelperAnalyst.EnterPaymentDetails(_sbProject);
+            _sbProject = _projectHelperAnalyst.GetProjectInfo(_sbProject);
+            _projectHelperAnalyst.CloseProjectWithPaymentDetails(_sbProject);
+            _sbProject = _projectHelperAnalyst.GetProjectInfo(_sbProject);
+            Assert.That(_sbProject.workflow_step, Is.Null);
+            Assert.That(_sbProject.is_closed);
+            Assert.That(_sbProject.assignee, Is.Null);
+            #endregion
+
+            #region Create Partial Reversal SB-project 
+            Debug.WriteLine("*** CREATING OF PARTIAL REVERSAL SB-PROJECT ***");
+            _sbPartialReversalProject = _projectHelperAnalyst.CreatePartialReversalProject(_sbProject);
+            Debug.WriteLine("Created project id: " + _sbPartialReversalProject.id + '\n');
+            _projectHelperAnalyst.AssignProject(_sbPartialReversalProject);
+            Assert.That(_sbPartialReversalProject.workflow_substep[0], Is.EqualTo("project_setup"));
+            Assert.That(_sbPartialReversalProject.project_type, Is.EqualTo("sb_rebate_partial_reversal"));
+            Assert.That(_sbPartialReversalProject.assignee, Is.Null);
+            #endregion
+
+            #region Assign Partial Partial Sb-Project to Analyst
+            Debug.WriteLine("ASSIGNING OF PARTIAL REVERSAL PROJECT BY ANALYST ");
+            _projectHelperAnalyst.AssignProject(_sbPartialReversalProject);
+            _sbPartialReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialReversalProject);
+            Assert.That(_sbPartialReversalProject.assignee, Is.EqualTo("rf_analyst@cis-cust.lan"));
+            Assert.That(_sbPartialReversalProject.owners.FirstOrDefault().user, Is.EqualTo("rf_analyst@cis-cust.lan"));
+            #endregion
+
+            #region Setup Partial Reversal Sb-Project to Analyst
+            Debug.WriteLine("PROJECT SETUP");
+            _projectHelperAnalyst.SetupPartialProject(_sbPartialReversalProject, _sbProject);
+            _sbPartialReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialReversalProject);
+            Assert.That(_sbPartialReversalProject.workflow_substep[0], Is.EqualTo("pending_calculation"));
+            Assert.That(_sbPartialReversalProject.arrangement_name, Is.EqualTo(_sbPartialReversalProject.arrangement_name));
+            Assert.That(_sbPartialReversalProject.owners.FirstOrDefault().user, Is.EqualTo("rf_analyst@cis-cust.lan"));
+            #endregion
+
+            #region Calculate Partial Revarsal Sb-Project
+            Debug.WriteLine("CALCULATING OF PARTIAL REVERSAL PROJECT");
+            _projectHelperAnalyst.CalculateSBproject(_sbPartialReversalProject);
+            _sbPartialReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialReversalProject);
+            Assert.That(_sbPartialReversalProject.workflow_substep[0], Is.EqualTo("calculating"));
+            _projectHelperAnalyst.WaitCalculatingSBproject(_sbPartialReversalProject);
+            _sbPartialReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialReversalProject);
+            Assert.That(_sbPartialReversalProject.workflow_substep[0], Is.EqualTo("adjustments"));
+            Assert.That(_sbPartialReversalProject.additional_attributes.total_amount, Is.Not.Null);
+            #endregion
+
+            #region Generate Report for Partial Reversal Sb-Project
+            Debug.WriteLine("GENERATING OF SAMMARY REPORT");
+            _projectHelperAnalyst.GenerateReport(_sbPartialReversalProject);
+            _generatedReports = _projectHelperAnalyst.GetReportsInfo(_sbPartialReversalProject.id);
+            Assert.That(_generatedReports.FirstOrDefault().report_type, Is.EqualTo("summary_by_evaluation_bu"));
+            #endregion
+
+            #region Send Partial Reversal Sb-Project to manager
+            Debug.WriteLine("SEND PARTIAL REVERSAL PROJECT TO MANAGER");
+            _projectHelperAnalyst.SendProjectToManager(_sbPartialReversalProject);
+            _sbPartialReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialReversalProject);
+            Assert.That(_sbPartialReversalProject.workflow_substep[0], Is.EqualTo("manager_review"));
+            #endregion
+
+            #region Assign Partial Reversal Sb-Project by Manager
+            Debug.WriteLine("ASSIGNING OF PROJECT BY MANAGER");
+            _projectHelperManager.AssignSbProject(_sbPartialReversalProject);
+            _sbPartialReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialReversalProject);
+            Assert.That(_sbPartialReversalProject.assignee, Is.EqualTo("rf_manager@cis-cust.lan"));
+            Assert.That(_sbPartialReversalProject.owners[1].user, Is.EqualTo("rf_manager@cis-cust.lan"));
+            #endregion
+
+            #region Unassign Partial Reversal Project by Admin
+            Debug.WriteLine("UNASSIGNING OF PARTIAL REVERSAL PROJECT BY ADMIN");
+            _projectHelperAdmin.UnassignProjectFromManager(_sbPartialReversalProject);
+            _sbPartialReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialReversalProject);
+            Assert.That(_sbPartialReversalProject.assignee, Is.Null);
+            Assert.That(_sbPartialReversalProject.owners.Count == 1);
+            #endregion
+
+            #region Reassign Partial Reversal Project to Manager
+            Debug.WriteLine("REASSIGNING OF PARTIAL REVERSAL PROJECT TO MANAGER");
+            _projectHelperAdmin.ReassignSbProjectToManager(_sbPartialReversalProject);
+            _sbPartialReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialReversalProject);
+            Assert.That(_sbPartialReversalProject.assignee, Is.EqualTo("rf_manager@cis-cust.lan"));
+            Assert.That(_sbPartialReversalProject.owners[1].user, Is.EqualTo("rf_manager@cis-cust.lan"));
+
+            #endregion
+
+            #region Approve Partial Reversal Sb-Project by Manager
+            Debug.WriteLine("APPROVE PARTIAL REVERSAL PROJECT BY MANAGER");
+            _projectHelperAnalyst.PaymentsPackageOff();
+            _projectHelperManager.ApproveProjectByManager(_sbPartialReversalProject);
+            _sbPartialReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialReversalProject);
+            Assert.That(_sbPartialReversalProject.workflow_substep[0], Is.EqualTo("final_review"));
+            Assert.That(_sbPartialReversalProject.assignee, Is.Null);
+            #endregion
+
+            #region Approve Partial Reversal SbProject by Client
+            Debug.WriteLine("APPROVE PARTIAL REVERSAL PROJECT BY CLIENT");
+            _projectHelperAnalyst.AproveProjectByClient(_sbPartialReversalProject);
+            _sbPartialReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialReversalProject);
+            Assert.That(_sbPartialReversalProject.workflow_step, Is.EqualTo("payment"));
+            Assert.That(_sbPartialReversalProject.workflow_substep[0], Is.EqualTo("manual_payment"));
+            Assert.That(_sbPartialReversalProject.assignee, Is.EqualTo("rf_analyst@cis-cust.lan"));
+            #endregion
+
+            #region Enter manual payments and close project
+            Debug.WriteLine("ENTER MANUAL PAYMENTS AND CLOSE PARTIAL REVERSAL PROJECT");
+            _projectHelperAnalyst.EnterPaymentDetails(_sbPartialReversalProject);
+            _sbPartialReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialReversalProject);
+            _projectHelperAnalyst.CloseProjectWithPaymentDetails(_sbPartialReversalProject);
+            _sbPartialReversalProject = _projectHelperAnalyst.GetProjectInfo(_sbPartialReversalProject);
+            Assert.That(_sbPartialReversalProject.workflow_step, Is.Null);
+            Assert.That(_sbPartialReversalProject.is_closed);
+            Assert.That(_sbPartialReversalProject.assignee, Is.Null);
             #endregion
         }
 
@@ -549,6 +833,8 @@ namespace RF_autotest.Tests
             _projectHelperAdmin.DeleteProject(_paymentProject);
             _projectHelperAdmin.DeleteProject(_sbFullRecalculationProject);
             _projectHelperAdmin.DeleteProject(_sbFullReversalProject);
+            _projectHelperAdmin.DeleteProject(_sbPartialRecalculationProject);
+            _projectHelperAdmin.DeleteProject(_sbPartialReversalProject);
         }
     }
 }
